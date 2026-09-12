@@ -1,0 +1,170 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-page);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-15);
+  width: 464px;
+  flex-shrink: 0;
+  padding: 44px 40px;
+  background: var(--color-accent);
+  color: var(--color-surface);
+}
+
+.brandMark {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: var(--font-size-15);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-snug);
+}
+
+.pitch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  max-width: 340px;
+}
+
+.headline {
+  font-size: var(--font-size-32);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.18;
+  letter-spacing: -0.028em;
+  text-wrap: pretty;
+}
+
+.lead {
+  margin: 0;
+  font-size: var(--font-size-15);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.points li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  font-size: var(--font-size-13);
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  padding: 40px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-9);
+  width: min(396px, 100%);
+}
+
+.formHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.formTitle {
+  font-size: var(--font-size-26);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.22;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.formLead {
+  margin: 0;
+  font-size: var(--font-size-14);
+  color: var(--color-muted);
+}
+
+.passwordField {
+  position: relative;
+}
+
+.reveal {
+  position: absolute;
+  right: var(--space-8);
+  top: 34px;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.forgot {
+  margin-top: calc(var(--space-9) * -1 + var(--space-2));
+  align-self: flex-end;
+  font-size: var(--font-size-12);
+  font-weight: var(--font-weight-medium);
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  font-size: var(--font-size-13);
+  color: var(--color-ink-secondary);
+  cursor: pointer;
+}
+
+.remember input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-accent);
+}
+
+.submit {
+  height: 48px;
+  font-size: var(--font-size-14);
+}
+
+.mfa {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin: 0;
+  padding: var(--space-8) var(--space-9);
+  background: var(--color-rail);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-12-5);
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.patient {
+  margin: 0;
+  font-size: var(--font-size-12);
+  color: var(--color-muted-2);
+}
+
+@media (max-width: 900px) {
+  .page {
+    flex-direction: column;
+  }
+
+  .brand {
+    width: 100%;
+    gap: var(--space-13);
+    padding: var(--space-13);
+  }
+}

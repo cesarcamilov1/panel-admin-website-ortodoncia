@@ -1,0 +1,21 @@
+.toast {
+  position: fixed;
+  right: var(--space-13);
+  bottom: var(--space-12);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 13px var(--space-9);
+  background: var(--color-ink);
+  border-radius: 11px;
+  box-shadow: var(--shadow-toast);
+  color: var(--color-surface);
+  font-size: var(--font-size-13);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.icon {
+  color: #7fd4c4;
+}

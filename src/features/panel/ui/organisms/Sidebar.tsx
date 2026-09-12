@@ -1,0 +1,59 @@
+import { NavLink } from 'react-router-dom'
+import { MoreIcon, ToothIcon } from '../../../../shared/ui/atoms/icons'
+import { Avatar } from '../../../../shared/ui/atoms/Avatar'
+import { NAV_GROUPS, isNavItemActive, sectionPath, type SectionId } from '../../domain/navigation'
+import { SECTION_ICONS } from '../sectionIcons'
+import styles from './Sidebar.module.css'
+
+interface SidebarProps {
+  current: SectionId
+}
+
+export function Sidebar({ current }: SidebarProps) {
+  return (
+    <aside className={styles.sidebar}>
+      <div className={styles.brand}>
+        <span className={styles.mark}>
+          <ToothIcon size={19} />
+        </span>
+        <span className={styles.brandText}>
+          <strong>Clínica Aurora</strong>
+          <small>Polanco · CDMX</small>
+        </span>
+      </div>
+
+      <nav className={styles.nav} aria-label="Secciones del panel">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.label} className={styles.group}>
+            <p className={styles.groupLabel}>{group.label}</p>
+            {group.items.map((item) => {
+              const Icon = SECTION_ICONS[item.id]
+              const active = isNavItemActive(item.id, current)
+              return (
+                <NavLink
+                  key={item.id}
+                  to={sectionPath(item.id)}
+                  className={`${styles.item} ${active ? styles.active : ''}`}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  <Icon size={18} />
+                  <span className={styles.itemLabel}>{item.label}</span>
+                  {item.count ? <span className={styles.count}>{item.count}</span> : null}
+                </NavLink>
+              )
+            })}
+          </div>
+        ))}
+      </nav>
+
+      <div className={styles.user}>
+        <Avatar name="Mariana Cázares" />
+        <span className={styles.userText}>
+          <strong>Dra. Mariana Cázares</strong>
+          <small>Odontóloga · Admin</small>
+        </span>
+        <MoreIcon />
+      </div>
+    </aside>
+  )
+}

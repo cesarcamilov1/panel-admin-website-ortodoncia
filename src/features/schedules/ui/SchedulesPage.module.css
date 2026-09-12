@@ -1,0 +1,232 @@
+.layout {
+  display: flex;
+  gap: var(--space-9);
+  align-items: flex-start;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 232px;
+  flex-shrink: 0;
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-xl);
+}
+
+.railTitle {
+  margin: 0;
+  padding: 0 var(--space-2) var(--space-3);
+  font-size: var(--font-size-11-5);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-muted-2);
+}
+
+.provider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-md);
+  text-align: left;
+  cursor: pointer;
+}
+
+.providerOn {
+  background: var(--color-accent-soft);
+}
+
+.providerText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.providerText strong {
+  font-size: var(--font-size-12-5);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.providerText small {
+  font-size: var(--font-size-11);
+  color: var(--color-muted-2);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-9);
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.duration {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.durationLabel {
+  font-size: var(--font-size-12);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.day {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: 13px var(--space-11);
+  border-bottom: 1px solid var(--color-row-divider);
+}
+
+.dayName {
+  width: 92px;
+  flex-shrink: 0;
+  font-size: var(--font-size-13);
+  font-weight: var(--font-weight-medium);
+}
+
+.dayOff {
+  color: var(--color-muted-2);
+}
+
+.ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.range {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-3) 11px;
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-line);
+  border-radius: var(--radius-sm);
+  color: var(--color-accent);
+  font-size: var(--font-size-12-5);
+  font-weight: var(--font-weight-medium);
+}
+
+.addRange {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: var(--space-3) 11px;
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  font-size: var(--font-size-12-5);
+  cursor: pointer;
+}
+
+.closed {
+  font-size: var(--font-size-12-5);
+  color: var(--color-muted-3);
+}
+
+.capacity {
+  width: 128px;
+  flex-shrink: 0;
+  font-size: var(--font-size-12);
+  color: var(--color-muted-2);
+}
+
+.block {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: 13px var(--space-11);
+  border-bottom: 1px solid var(--color-row-divider);
+}
+
+.blockIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+}
+
+.lunch {
+  background: var(--color-neutral-bg);
+  color: var(--color-neutral-ink);
+}
+.event {
+  background: var(--color-info-bg);
+  color: var(--color-info-ink);
+}
+.holiday {
+  background: var(--color-ok-bg);
+  color: var(--color-ok-ink);
+}
+.maintenance {
+  background: var(--color-warn-bg);
+  color: var(--color-warn-ink);
+}
+
+.blockText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.blockText strong {
+  font-size: var(--font-size-13);
+  font-weight: var(--font-weight-medium);
+}
+
+.blockText small {
+  font-size: var(--font-size-11-5);
+  color: var(--color-muted-2);
+}
+
+.blockRange {
+  width: 190px;
+  flex-shrink: 0;
+  font-size: var(--font-size-12-5);
+  color: var(--color-ink-secondary);
+}
+
+.blockRepeat {
+  width: 108px;
+  flex-shrink: 0;
+  font-size: var(--font-size-12-5);
+  color: var(--color-muted);
+}
+
+.remove {
+  flex-shrink: 0;
+  color: var(--color-muted-3);
+  cursor: pointer;
+}
+
+.remove:hover {
+  color: var(--color-danger-ink);
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .rail {
+    width: 100%;
+  }
+}

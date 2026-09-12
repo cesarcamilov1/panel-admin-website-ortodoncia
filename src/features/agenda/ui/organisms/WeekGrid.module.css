@@ -1,0 +1,178 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  border-bottom: 1px solid var(--color-border-soft);
+  padding-right: var(--space-7);
+}
+
+.body {
+  display: flex;
+  max-height: 604px;
+  overflow-y: auto;
+  padding-right: var(--space-7);
+}
+
+.gutter {
+  width: 54px;
+  flex-shrink: 0;
+}
+
+.hour {
+  display: block;
+  height: var(--panel-hour-height);
+  padding-right: var(--space-4);
+  font-size: var(--font-size-10-5);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted-5);
+  text-align: right;
+  transform: translateY(-6px);
+}
+
+.dayHead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--space-6) 0;
+}
+
+.today {
+  background: var(--color-rail);
+}
+
+.dow {
+  font-size: var(--font-size-11);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-muted-2);
+}
+
+.dayNumber {
+  font-size: var(--font-size-15);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+}
+
+.today .dow,
+.today .dayNumber {
+  color: var(--color-accent);
+}
+
+.column {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  border-left: 1px solid var(--color-row-divider);
+  background: repeating-linear-gradient(
+    180deg,
+    var(--color-border-soft) 0 1px,
+    transparent 1px var(--panel-hour-height)
+  );
+}
+
+.block {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--color-page) 0 5px,
+    var(--color-rail) 5px 10px
+  );
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.blockLabel {
+  display: block;
+  padding: 3px var(--space-4);
+  font-size: var(--font-size-10);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-muted-5);
+}
+
+.appointment {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 5px var(--space-4);
+  border-radius: var(--space-3);
+  border-left: 3px solid var(--color-status-confirmada);
+  overflow: hidden;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 110ms ease, box-shadow 110ms ease;
+}
+
+.appointment:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -10px rgba(27, 33, 31, 0.6);
+}
+
+.appointmentTime {
+  font-size: var(--font-size-10-5);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-hair);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.appointmentService {
+  font-size: var(--font-size-10);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  opacity: 0.82;
+}
+
+.confirmada {
+  background: #e7f1ef;
+  border-left-color: var(--color-status-confirmada);
+  color: #0b4f47;
+}
+
+.pendiente {
+  background: var(--color-warn-bg);
+  border-left-color: var(--color-status-pendiente);
+  color: #7a4f10;
+}
+
+.curso {
+  background: var(--color-info-bg);
+  border-left-color: var(--color-status-curso);
+  color: #24536f;
+}
+
+.completada {
+  background: var(--color-ok-bg);
+  border-left-color: var(--color-status-completada);
+  color: #1f5a41;
+}
+
+.noshow {
+  background: var(--color-danger-bg);
+  border-left-color: var(--color-status-noshow);
+  color: #8a2e23;
+}
+
+.cancelada {
+  background: var(--color-neutral-bg);
+  border-left-color: var(--color-status-cancelada);
+  color: var(--color-muted);
+  text-decoration: line-through;
+}

@@ -1,0 +1,171 @@
+:root {
+  /* Surfaces */
+  --color-page: #f4f1ec;
+  --color-surface: #ffffff;
+  --color-rail: #faf8f4;
+
+  /* Borders */
+  --color-border: #e7e1d6;
+  --color-border-soft: #ede7dc;
+  --color-border-strong: #ddd5c7;
+  --color-border-dashed: #ddd5c7;
+
+  /* Ink */
+  --color-ink: #1b211f;
+  --color-ink-secondary: #4a524f;
+  --color-muted: #6b7370;
+  --color-muted-2: #9aa19d;
+  --color-muted-3: #c6cbc8;
+  --color-muted-4: #bfc4c1;
+  --color-muted-5: #a8aeab;
+
+  /* Accent (mixed toward white/black via src/styles/colorMix.ts) */
+  --color-accent: #0f6e62;
+  --color-accent-hover: #0a4f46;
+
+  /* Interaction states (from the design prototype) */
+  --color-border-hover: #b9c4bf;
+  --color-day-hover: #efeae0;
+  --color-accent-soft: #eef5f4;
+  --color-accent-line: #adceca;
+  --color-accent-ink-25: #0b534a;
+  --color-accent-ink-12: #0d6156;
+
+  /* Day / slot states */
+  --color-day-closed-bg: #f4f1ec;
+  --color-day-closed-border: #e7e1d6;
+
+  /* WhatsApp preview bubble */
+  --color-wa-panel-bg: #edebe4;
+  --color-wa-panel-border: #e2ded3;
+  --color-wa-bubble-bg: #e9f3dc;
+  --color-wa-bubble-border: #d8e7c6;
+  --color-wa-text: #263029;
+  --color-wa-meta: #7e8a78;
+
+  /* Typography */
+  --font-family-base: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --font-size-11: 11px;
+  --font-size-12: 12px;
+  --font-size-12-5: 12.5px;
+  --font-size-13: 13px;
+  --font-size-14: 14px;
+  --font-size-15: 15px;
+  --font-size-16: 16px;
+  --font-size-20: 20px;
+  --font-size-23: 23px;
+  --font-size-25: 25px;
+  --font-size-27: 27px;
+  --font-size-28: 28px;
+
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-tighter: -0.022em;
+  --letter-spacing-snug: -0.01em;
+  --letter-spacing-hair: -0.005em;
+  --letter-spacing-wide: 0.01em;
+  --letter-spacing-wider: 0.04em;
+  --letter-spacing-widest: 0.09em;
+
+  /* Spacing scale */
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 6px;
+  --space-4: 7px;
+  --space-5: 8px;
+  --space-6: 10px;
+  --space-7: 12px;
+  --space-8: 14px;
+  --space-9: 16px;
+  --space-10: 18px;
+  --space-11: 20px;
+  --space-12: 22px;
+  --space-13: 24px;
+  --space-14: 26px;
+  --space-15: 30px;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 9px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 14px;
+  --radius-3xl: 18px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 18px 44px -30px rgba(27, 33, 31, 0.55);
+  --shadow-selected: 0 6px 18px -14px rgba(27, 33, 31, 0.6);
+
+  /* Layout */
+  --layout-card-max-width: 988px;
+  --layout-rail-width: 288px;
+  --layout-min-tap: 44px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Panel additions: status palette, odontogram and layout metrics      */
+/* ------------------------------------------------------------------ */
+:root {
+  /* Semantic status pairs (background / ink) */
+  --color-ok-bg: #e9f3ed;
+  --color-ok-ink: #266b4c;
+  --color-warn-bg: #fbf2e2;
+  --color-warn-ink: #8a5a12;
+  --color-danger-bg: #fbedea;
+  --color-danger-ink: #9a3427;
+  --color-info-bg: #eaf1f6;
+  --color-info-ink: #2a5f80;
+  --color-neutral-bg: #f4f1ec;
+  --color-neutral-ink: #6b7370;
+
+  /* Appointment status keylines */
+  --color-status-confirmada: #0f6e62;
+  --color-status-pendiente: #b4771f;
+  --color-status-curso: #2f6b8f;
+  --color-status-completada: #2e7d5b;
+  --color-status-noshow: #b03a2e;
+  --color-status-cancelada: #c3c9c5;
+
+  /* Odontogram conditions */
+  --color-tooth-sano: #ffffff;
+  --color-tooth-caries: #b03a2e;
+  --color-tooth-obturacion: #2f6b8f;
+  --color-tooth-sellador: #93b8d4;
+  --color-tooth-fractura: #d9782b;
+  --color-tooth-corona: #b98a2e;
+  --color-tooth-endodoncia: #6c4da8;
+  --color-tooth-implante: #266b4c;
+  --color-tooth-ausente: #e4dfd4;
+  --color-tooth-ausente-line: #d5cec2;
+
+  /* Rows and dividers */
+  --color-row-divider: #f3efe8;
+  --color-row-hover: #faf8f4;
+
+  /* Panel layout */
+  --font-size-10: 10px;
+  --font-size-10-5: 10.5px;
+  --font-size-11-5: 11.5px;
+  --font-size-13-5: 13.5px;
+  --font-size-17: 17px;
+  --font-size-19: 19px;
+  --font-size-21: 21px;
+  --font-size-26: 26px;
+  --font-size-32: 32px;
+
+  --panel-sidebar-width: 252px;
+  --panel-topbar-height: 62px;
+  --panel-hour-height: 46px;
+  --panel-content-padding: 22px 26px 30px;
+
+  --shadow-drawer: -24px 0 60px -40px rgba(27, 33, 31, 0.7);
+  --shadow-modal: 0 40px 90px -40px rgba(27, 33, 31, 0.7);
+  --shadow-toast: 0 20px 44px -24px rgba(27, 33, 31, 0.8);
+  --overlay-scrim: rgba(27, 33, 31, 0.32);
+}

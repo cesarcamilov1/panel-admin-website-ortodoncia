@@ -1,0 +1,203 @@
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--overlay-scrim);
+  border: none;
+  cursor: default;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 21;
+  display: flex;
+  flex-direction: column;
+  width: min(396px, 100vw);
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-drawer);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-7);
+  padding: var(--space-10) var(--space-11);
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.title {
+  flex-grow: 1;
+  font-size: var(--font-size-15);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.015em;
+}
+
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: var(--space-11);
+}
+
+.patient {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.patientText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.patientText strong {
+  font-size: var(--font-size-15);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.015em;
+}
+
+.patientText a {
+  font-size: var(--font-size-12-5);
+  font-weight: var(--font-weight-medium);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin: 0;
+  padding: 15px var(--space-9);
+  background: var(--color-rail);
+  border: 1px solid var(--color-border-soft);
+  border-radius: 11px;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-7);
+}
+
+.row dt {
+  width: 104px;
+  flex-shrink: 0;
+  font-size: var(--font-size-12);
+  color: var(--color-muted-2);
+}
+
+.row dd {
+  margin: 0;
+  flex-grow: 1;
+  min-width: 0;
+  font-size: var(--font-size-12-5);
+  font-weight: var(--font-weight-medium);
+}
+
+.noteLabel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font-size: var(--font-size-12);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink-secondary);
+}
+
+.note {
+  height: 78px;
+  padding: 11px var(--space-7);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-13);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.55;
+  resize: none;
+}
+
+.reminders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.remindersTitle {
+  margin: 0;
+  font-size: var(--font-size-12);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink-secondary);
+}
+
+.reminder {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-muted-3);
+}
+
+.ok {
+  background: var(--color-ok-ink);
+}
+
+.warn {
+  background: var(--color-status-pendiente);
+}
+
+.idle {
+  background: var(--color-muted-3);
+}
+
+.reminderLabel {
+  flex-grow: 1;
+  min-width: 0;
+  font-size: var(--font-size-12-5);
+  color: var(--color-ink-secondary);
+}
+
+.reminderWhen {
+  font-size: var(--font-size-11-5);
+  color: var(--color-muted-2);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-9) var(--space-11);
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.actions > * {
+  flex: 1 1 0;
+}

@@ -1,0 +1,52 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.cell {
+  display: block;
+  min-width: 0;
+}
+
+.cell > span {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.strong {
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-hair);
+}
+
+.muted {
+  font-size: var(--font-size-12-5);
+  color: var(--color-muted);
+}
+
+.ok {
+  color: var(--color-ok-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+.warn {
+  color: var(--color-warn-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+.danger {
+  color: var(--color-danger-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sub {
+  display: block;
+  padding-top: var(--space-1);
+  font-size: var(--font-size-11-5);
+  color: var(--color-muted-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
