@@ -1,5 +1,4 @@
 import type { HttpClient } from '../../../shared/api/http'
-import { ApiError } from '../../../shared/api/problem'
 import {
   type CatalogService,
   type CatalogServiceDto,
@@ -13,8 +12,6 @@ import {
   toFiscalConfigWriteDto,
   toServiceWriteDto,
 } from '../domain/service'
-
-const MAX_LOCATION_SERVICES = 200
 
 export interface ListServicesOptions {
   /** `active=false` makes the backend return the whole catalog, not just the inactive rows. */
@@ -34,35 +31,16 @@ export interface PutFiscalConfigInput {
   version?: number
 }
 
-export interface LocationServicesQuery {
-  locationId: string
-  providerUserId?: string
-}
-
-export interface ReplaceLocationServicesInput {
-  locationId: string
-  providerUserId: string
-  serviceIds: string[]
-}
-
 export interface ServicesApi {
   list: (options?: ListServicesOptions) => Promise<CatalogService[]>
   create: (draft: ServiceDraft) => Promise<CatalogService>
   update: (input: UpdateServiceInput) => Promise<CatalogService>
   putFiscalConfig: (input: PutFiscalConfigInput) => Promise<FiscalConfig>
-  listLocationServices: (query: LocationServicesQuery) => Promise<CatalogService[]>
-  replaceLocationServices: (input: ReplaceLocationServicesInput) => Promise<void>
-  listPublicLocationServices: (query: LocationServicesQuery) => Promise<CatalogService[]>
 }
 
 function mapList(payload: ServiceListDto | undefined): CatalogService[] {
   if (!payload || !Array.isArray(payload.items)) return []
   return payload.items.map(fromCatalogServiceDto)
-}
-
-function withProvider(path: string, providerUserId?: string): string {
-  if (!providerUserId) return path
-  return `${path}?provider_user_id=${encodeURIComponent(providerUserId)}`
 }
 
 export function createServicesApi(http: HttpClient): ServicesApi {
@@ -96,33 +74,6 @@ export function createServicesApi(http: HttpClient): ServicesApi {
         version === undefined ? {} : { ifMatch: version },
       )
       return fromFiscalConfigDto(dto)
-    },
-
-    async listLocationServices({ locationId, providerUserId }) {
-      const path = `/api/v1/schedules/locations/${encodeURIComponent(locationId)}/services`
-      const payload = await http.get<ServiceListDto>(withProvider(path, providerUserId))
-      return mapList(payload)
-    },
-
-    async replaceLocationServices({ locationId, providerUserId, serviceIds }) {
-      const unique = [...new Set(serviceIds)]
-      if (unique.length > MAX_LOCATION_SERVICES) {
-        throw new ApiError({
-          status: 0,
-          code: 'VALIDATION_ERROR',
-          detail: `Una sede no puede tener más de ${MAX_LOCATION_SERVICES} servicios.`,
-        })
-      }
-      await http.put<void>(
-        `/api/v1/schedules/locations/${encodeURIComponent(locationId)}/services`,
-        { provider_user_id: providerUserId, service_ids: unique },
-      )
-    },
-
-    async listPublicLocationServices({ locationId, providerUserId }) {
-      const path = `/api/v1/public/locations/${encodeURIComponent(locationId)}/services`
-      const payload = await http.get<ServiceListDto>(withProvider(path, providerUserId))
-      return mapList(payload)
     },
   }
 }

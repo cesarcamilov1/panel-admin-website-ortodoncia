@@ -37,9 +37,6 @@ function fakeApi(overrides: Partial<ServicesApi> = {}): ServicesApi {
     create: vi.fn(),
     update: vi.fn(),
     putFiscalConfig: vi.fn(),
-    listLocationServices: vi.fn(),
-    replaceLocationServices: vi.fn(),
-    listPublicLocationServices: vi.fn(),
     ...overrides,
   }
 }
