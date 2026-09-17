@@ -32,7 +32,7 @@ prevent reliable mobile use. Fix these shared causes rather than hiding page ove
 | Starting worktree | Clean before this document was created |
 | Existing DataTable fix | Committed before this feature; preserve it |
 | Forecast | 700–1,180 authored additions plus deletions, excluding this document |
-| Actual running count | 252 implementation/test lines; 390 total authored lines in T1 including feature documentation |
+| Actual running count | 401 implementation/test lines; 604 total authored lines across T1 and T2 including documentation |
 | `delivery_strategy` | `auto-chain` under the user's instruction to execute the full ODD workflow |
 | `chain_strategy` | `feature-branch-chain`; coordinated local slices, no remote delivery authorized |
 | Slice boundaries and commits | T1 is local slice 1; later coherent work units follow |
@@ -181,5 +181,6 @@ and synchronize them after each task.
   `DataTable.module.css`, `DataTable.test.tsx`, `Card.module.css`, `KpiCard.module.css`,
   `Toast.module.css`, plus this progress document. Revert this work unit independently
   of T1 and the initial DataTable sizing fix.
-- Slice: T2/local slice 2. Commit identity and authored count recorded after commit.
+- Slice: T2/local slice 2. Commit: `ca902c6` (`fix(ui): keep shared tables and cards usable on mobile`).
+  Authored count: 149 implementation/test lines; 214 total including tracking updates.
   Native risk/outcome pending parent review; task checkbox remains open until closure.
