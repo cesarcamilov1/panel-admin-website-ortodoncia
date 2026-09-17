@@ -70,12 +70,20 @@ instruction.
       `HH:MM` and range validation, block types, window helpers, error messages, ordering).
 - [x] T2 — Application: `schedulesApi.ts` (six operations, required provider guard) plus
       `useSchedulesApi`, `useWorkSchedules` and `useScheduleBlocks` hooks.
-- [ ] T3 — UI: rewrite `SchedulesPage` over real data, with the week grid, the range
+- [x] T3 — UI: rewrite `SchedulesPage` over real data, with the week grid, the range
       dialog, the block dialog, the location filter, and loading/error/empty states.
+- [ ] T4 — Identify the location select by id, not by name: `SelectField` only accepts
+      `string[]` and renders options without a `value`, so the three location selects map
+      the chosen label back to a location. `practice_locations` has no unique index on
+      `name` (migration 000026 only guards `(id, provider_user_id)` and one default per
+      provider), so two locations with the same name resolve to the first one. Found while
+      reviewing T3.
 
 ## Progress
 - T1 done: `clinicTime.ts`, `workSchedule.ts`, `scheduleBlock.ts` and their tests.
 - T2 done: `schedulesApi.ts`, `useSchedulesApi`, `useWorkSchedules`, `useScheduleBlocks`.
+- T3 done: `SchedulesPage` rewritten over the real API, `WorkScheduleModal` and
+  `ScheduleBlockModal` added, `domain/data.ts` mocks deleted (no other importer).
 
 ## Verification evidence
 - T1 RED: `pnpm test:run src/features/schedules/domain` -> 2 failed files, "no tests"
@@ -87,5 +95,11 @@ instruction.
 - Note: `useSchedulesApi.test.tsx` was written after its four-line wiring hook, not before;
   every other unit in T1 and T2 was driven from an observed RED.
 
+- T3 RED: each new unit failed first (`Failed to resolve import "./WorkScheduleModal"`,
+  same for `ScheduleBlockModal`, and `Element type is invalid ... SchedulesScreen`).
+- T3 GREEN: `pnpm test:run src/features/schedules` -> 9 files, 85 tests passed.
+- Parent spot check: `pnpm test:run` -> 46 files, 529 tests passed; `pnpm exec tsc -b` ->
+  no errors; `pnpm exec oxlint` -> clean.
+
 ## Next step
-- T3.
+- T4.
