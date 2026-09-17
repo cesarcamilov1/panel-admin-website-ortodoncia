@@ -25,7 +25,9 @@ Simplify creating and editing services without changing monetary precision or AP
 - RDD: on (global); assess committed candidate and relay native consent if requested. Initial empty-worktree assess unavailable (no pending changes).
 
 ## Progress and next step
-Implementation and verification complete; work-unit commit pending.
+Implementation and verification complete in work-unit commit `145f19dfd0a1fc7eef6bf624eeaeb15adec69e07`.
+Running authored count: 182 lines for the work unit (169 additions, 13 deletions); documentation evidence update stays in the same slice.
+Next step: obtain native review consent for this completed slice; no push or PR performed.
 
 ### Verification evidence
 - Initial focused RED: 20 failed / 21 passed; GREEN: 41 passed.
@@ -36,4 +38,4 @@ Implementation and verification complete; work-unit commit pending.
 - `node /tmp/citas-service-popup-check.mjs`: create/edit price and suggestions verified; keyboard selected 10; mobile width 375, scrollWidth 375.
 - Initial browser harness failed because it assumed a native tbody; corrected selector to the existing rendered service label, then passed.
 - Exact monetary strings remain unchanged unless edited. Display normalization occurs only on initialization/blur so decimal typing works.
-- Native RDD candidate assessment pending commit; no approval claimed.
+- Native RDD assessment: medium (`executable_change`), deferred to slice close. Preflight STATUS requests fresh review.start; candidate consent pending, no approval claimed.
