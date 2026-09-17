@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '../../../shared/ui/atoms/Button'
 import { TextField } from '../../../shared/ui/atoms/Field'
-import { EyeIcon, LockIcon } from '../../../shared/ui/atoms/icons'
+import { EyeIcon } from '../../../shared/ui/atoms/icons'
 import { FormAlert } from '../../../shared/ui/molecules/FormAlert'
 import { useAuth } from '../application/authContext'
 import { forgetDevice, readRememberedDevice, rememberDevice } from '../application/sessionPreference'
@@ -159,16 +159,6 @@ export function LoginPage() {
         <Button type="submit" className={styles.submit} disabled={pending || retryAfter > 0}>
           {pending ? 'Entrando…' : retryAfter > 0 ? `Espera ${retryAfter}s` : 'Entrar'}
         </Button>
-
-        <p className={styles.mfa}>
-          <LockIcon size={18} />
-          Para ver expedientes y datos fiscales te pediremos un segundo factor la primera vez del
-          día.
-        </p>
-
-        <p className={styles.patient}>
-          ¿Eres paciente? Agenda tu cita en <a href="#sitio">el sitio de la clínica</a>.
-        </p>
       </form>
     </AuthLayout>
   )
