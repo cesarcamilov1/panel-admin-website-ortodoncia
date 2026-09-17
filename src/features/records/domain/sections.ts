@@ -34,7 +34,6 @@ export interface RecordSection {
 }
 
 export type RecordSectionId =
-  | 'servicios'
   | 'recetas'
   | 'consentimientos'
   | 'pagos'
@@ -47,100 +46,6 @@ export type RecordSectionId =
 const t = (text: string, extra: Omit<RecordCell, 'text'> = {}): RecordCell => ({ text, ...extra })
 
 export const RECORD_SECTIONS: Record<RecordSectionId, RecordSection> = {
-  servicios: {
-    action: 'Nuevo servicio',
-    altAction: 'Importar lista',
-    filters: ['Todos', 'Activos', 'Pausados', 'Con consentimiento'],
-    footer: '7 de 24 servicios',
-    columns: [
-      { label: 'Servicio', grow: 2 },
-      { label: 'Código', width: '104px' },
-      { label: 'Duración', width: '92px' },
-      { label: 'Precio', width: '104px', align: 'right' },
-      { label: 'Consentimiento', width: '142px' },
-      { label: 'Estado', width: '96px' },
-    ],
-    rows: [
-      {
-        id: 'SRV-101',
-        cells: [
-          t('Limpieza dental', { strong: true, sub: 'Profilaxis y pulido' }),
-          t('SRV-101', { muted: true }),
-          t('45 min', { muted: true }),
-          t('$850.00', { strong: true }),
-          t('No requiere', { muted: true }),
-          t('Activo', { badge: 'ok' }),
-        ],
-      },
-      {
-        id: 'SRV-214',
-        cells: [
-          t('Resina posterior', { strong: true, sub: 'Una a tres superficies' }),
-          t('SRV-214', { muted: true }),
-          t('60 min', { muted: true }),
-          t('$1,450.00', { strong: true }),
-          t('Requiere'),
-          t('Activo', { badge: 'ok' }),
-        ],
-      },
-      {
-        id: 'SRV-330',
-        cells: [
-          t('Endodoncia unirradicular', { strong: true, sub: 'Incluye radiografía de control' }),
-          t('SRV-330', { muted: true }),
-          t('90 min', { muted: true }),
-          t('$3,900.00', { strong: true }),
-          t('Requiere'),
-          t('Activo', { badge: 'ok' }),
-        ],
-      },
-      {
-        id: 'SRV-402',
-        cells: [
-          t('Extracción simple', { strong: true, sub: 'Sin colgajo' }),
-          t('SRV-402', { muted: true }),
-          t('40 min', { muted: true }),
-          t('$1,200.00', { strong: true }),
-          t('Requiere'),
-          t('Activo', { badge: 'ok' }),
-        ],
-      },
-      {
-        id: 'SRV-510',
-        cells: [
-          t('Ortodoncia · colocación', { strong: true, sub: 'Brackets metálicos, ambas arcadas' }),
-          t('SRV-510', { muted: true }),
-          t('90 min', { muted: true }),
-          t('$12,500.00', { strong: true }),
-          t('Requiere'),
-          t('Activo', { badge: 'ok' }),
-        ],
-      },
-      {
-        id: 'SRV-511',
-        cells: [
-          t('Ortodoncia · ajuste', { strong: true, sub: 'Mensualidad' }),
-          t('SRV-511', { muted: true }),
-          t('30 min', { muted: true }),
-          t('$850.00', { strong: true }),
-          t('No requiere', { muted: true }),
-          t('Activo', { badge: 'ok' }),
-        ],
-      },
-      {
-        id: 'SRV-620',
-        cells: [
-          t('Blanqueamiento en consultorio', { strong: true, sub: 'Dos sesiones' }),
-          t('SRV-620', { muted: true }),
-          t('75 min', { muted: true }),
-          t('$4,200.00', { strong: true }),
-          t('Requiere'),
-          t('Pausado', { badge: 'neutral' }),
-        ],
-      },
-    ],
-  },
-
   recetas: {
     action: 'Nueva receta',
     altAction: 'Vademécum',

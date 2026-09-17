@@ -12,6 +12,7 @@ import { PatientRecordPage } from './features/patient-record/ui/PatientRecordPag
 import { PatientsPage } from './features/patients/ui/PatientsPage'
 import { RecordsPage } from './features/records/ui/RecordsPage'
 import { SchedulesPage } from './features/schedules/ui/SchedulesPage'
+import { ServicesPage } from './features/services/ui/ServicesPage'
 import { SettingsPage } from './features/settings/ui/SettingsPage'
 
 function App() {
@@ -35,7 +36,7 @@ function App() {
           <Route path="consentimientos" element={<RecordsPage section="consentimientos" />} />
           <Route path="pagos" element={<RecordsPage section="pagos" />} />
           <Route path="facturacion" element={<RecordsPage section="facturacion" />} />
-          <Route path="servicios" element={<RecordsPage section="servicios" />} />
+          <Route path="servicios" element={<ServicesPage />} />
           <Route path="horarios" element={<SchedulesPage />} />
           <Route path="recordatorios" element={<RecordsPage section="recordatorios" />} />
           <Route path="resenas" element={<RecordsPage section="resenas" />} />

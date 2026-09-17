@@ -227,3 +227,87 @@ describe('createHttpClient', () => {
     })
   })
 })
+
+describe('createHttpClient mutating verbs', () => {
+  let fetchImpl: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    fetchImpl = vi.fn()
+  })
+
+  function client() {
+    return createHttpClient({
+      baseUrl: '',
+      getCsrfToken: () => 'token-123',
+      setCsrfToken: vi.fn(),
+      onUnauthorized: vi.fn(),
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    })
+  }
+
+  it('sends a PUT with body, csrf token and no If-Match by default', async () => {
+    fetchImpl.mockResolvedValueOnce(jsonResponse({ id: 'svc-1' }))
+
+    const http = client()
+    const result = await http.put('/api/v1/services/svc-1', { name: 'Limpieza' })
+
+    const [url, init] = fetchImpl.mock.calls[0] as [string, RequestInit]
+    expect(url).toBe('/api/v1/services/svc-1')
+    expect(init.method).toBe('PUT')
+    const headers = init.headers as Headers
+    expect(headers.get('X-CSRF-Token')).toBe('token-123')
+    expect(headers.has('If-Match')).toBe(false)
+    expect(JSON.parse(init.body as string)).toEqual({ name: 'Limpieza' })
+    expect(result).toEqual({ id: 'svc-1' })
+  })
+
+  it('sends the version as a quoted If-Match entity tag', async () => {
+    fetchImpl.mockResolvedValueOnce(jsonResponse({ id: 'svc-1' }))
+
+    const http = client()
+    await http.put('/api/v1/services/svc-1', { name: 'Limpieza' }, { ifMatch: 4 })
+
+    const [, init] = fetchImpl.mock.calls[0] as [string, RequestInit]
+    expect((init.headers as Headers).get('If-Match')).toBe('"4"')
+  })
+
+  it('sends a DELETE without a body', async () => {
+    fetchImpl.mockResolvedValueOnce(new Response(null, { status: 204 }))
+
+    const http = client()
+    const result = await http.del('/api/v1/schedules/svc-1')
+
+    const [, init] = fetchImpl.mock.calls[0] as [string, RequestInit]
+    expect(init.method).toBe('DELETE')
+    expect(init.body).toBeUndefined()
+    expect((init.headers as Headers).has('Content-Type')).toBe(false)
+    expect(result).toBeUndefined()
+  })
+
+  it('preserves the If-Match header when retrying after a csrf rotation', async () => {
+    fetchImpl
+      .mockResolvedValueOnce(problemResponse(403, 'CSRF_INVALID'))
+      .mockResolvedValueOnce(jsonResponse({ csrf_token: 'fresh-token' }))
+      .mockResolvedValueOnce(jsonResponse({ id: 'svc-1' }))
+
+    const http = client()
+    await http.put('/api/v1/services/svc-1', { name: 'Limpieza' }, { ifMatch: 7 })
+
+    expect(fetchImpl).toHaveBeenCalledTimes(3)
+    const retryHeaders = (fetchImpl.mock.calls[2][1] as RequestInit).headers as Headers
+    expect(retryHeaders.get('If-Match')).toBe('"7"')
+  })
+
+  it('does not send If-Match on the csrf rotation request itself', async () => {
+    fetchImpl
+      .mockResolvedValueOnce(problemResponse(403, 'CSRF_INVALID'))
+      .mockResolvedValueOnce(jsonResponse({ csrf_token: 'fresh-token' }))
+      .mockResolvedValueOnce(jsonResponse({ id: 'svc-1' }))
+
+    const http = client()
+    await http.put('/api/v1/services/svc-1', {}, { ifMatch: 7 })
+
+    const rotationHeaders = (fetchImpl.mock.calls[1][1] as RequestInit).headers as Headers
+    expect(rotationHeaders.has('If-Match')).toBe(false)
+  })
+})
