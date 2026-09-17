@@ -1,6 +1,8 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import { createRef, forwardRef, useImperativeHandle } from 'react'
 import { describe, expect, it, vi } from 'vitest'
+import type { HttpClient } from '../../../shared/api/http'
+import { useHttp } from '../../../shared/api/httpContext'
 import { ApiError } from '../../../shared/api/problem'
 import type { AuthApi } from './authApi'
 import { AuthProvider } from './AuthProvider'
@@ -256,5 +258,38 @@ describe('<AuthProvider />', () => {
       act(() => handle.current!.login({ email: USER.email, password: 'secret123' })),
     ).rejects.toThrow()
     expect(screen.queryByText(`authenticated:${USER.email}`)).not.toBeInTheDocument()
+  })
+})
+
+describe('AuthProvider http publication', () => {
+  function HttpProbe() {
+    const http = useHttp()
+    return <span>{typeof http.put}</span>
+  }
+
+  it('publishes the app-wide http client to the tree below it', async () => {
+    const client = { get: vi.fn(), post: vi.fn(), put: vi.fn(), del: vi.fn() } as unknown as HttpClient
+
+    render(
+      <AuthProvider api={fakeApi()} http={client}>
+        <HttpProbe />
+      </AuthProvider>,
+    )
+
+    await waitFor(() => expect(screen.getByText('function')).toBeInTheDocument())
+  })
+
+  it('renders children without a client when none is available, so useHttp still fails loudly', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    expect(() =>
+      render(
+        <AuthProvider api={fakeApi()}>
+          <HttpProbe />
+        </AuthProvider>,
+      ),
+    ).toThrow(/HttpProvider/)
+
+    consoleError.mockRestore()
   })
 })

@@ -13,16 +13,29 @@ export interface HttpClientOptions {
   timeoutMs?: number
 }
 
-export interface HttpClient {
-  get: <T>(path: string) => Promise<T>
-  post: <T>(path: string, body?: unknown) => Promise<T>
+export interface RequestOptions {
+  /** Aggregate version for optimistic concurrency, sent as a strong entity tag. */
+  ifMatch?: number
 }
 
-function buildHeaders(hasBody: boolean, csrfToken: string | null, isMutating: boolean): Headers {
+export interface HttpClient {
+  get: <T>(path: string) => Promise<T>
+  post: <T>(path: string, body?: unknown, options?: RequestOptions) => Promise<T>
+  put: <T>(path: string, body?: unknown, options?: RequestOptions) => Promise<T>
+  del: <T>(path: string, options?: RequestOptions) => Promise<T>
+}
+
+function buildHeaders(
+  hasBody: boolean,
+  csrfToken: string | null,
+  isMutating: boolean,
+  options: RequestOptions,
+): Headers {
   const headers = new Headers()
   headers.set('Accept', 'application/json, application/problem+json')
   if (hasBody) headers.set('Content-Type', 'application/json')
   if (isMutating && csrfToken) headers.set('X-CSRF-Token', csrfToken)
+  if (options.ifMatch !== undefined) headers.set('If-Match', `"${options.ifMatch}"`)
   return headers
 }
 
@@ -41,9 +54,19 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
   const fetchImpl = options.fetchImpl ?? fetch
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS
 
-  async function rawRequest(method: string, path: string, body?: unknown): Promise<Response> {
+  async function rawRequest(
+    method: string,
+    path: string,
+    body: unknown,
+    requestOptions: RequestOptions,
+  ): Promise<Response> {
     const isMutating = MUTATING_METHODS.has(method)
-    const headers = buildHeaders(body !== undefined, options.getCsrfToken(), isMutating)
+    const headers = buildHeaders(
+      body !== undefined,
+      options.getCsrfToken(),
+      isMutating,
+      requestOptions,
+    )
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), timeoutMs)
 
@@ -67,12 +90,19 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
   }
 
   async function rotateCsrf(): Promise<void> {
-    const data = await request<{ csrf_token: string }>('GET', '/api/v1/auth/csrf', undefined, true)
+    // Rotation is its own request: it must never inherit the caller's precondition.
+    const data = await request<{ csrf_token: string }>('GET', '/api/v1/auth/csrf', undefined, {}, true)
     options.setCsrfToken(data.csrf_token)
   }
 
-  async function request<T>(method: string, path: string, body?: unknown, isRetry = false): Promise<T> {
-    const response = await rawRequest(method, path, body)
+  async function request<T>(
+    method: string,
+    path: string,
+    body: unknown,
+    requestOptions: RequestOptions,
+    isRetry = false,
+  ): Promise<T> {
+    const response = await rawRequest(method, path, body, requestOptions)
 
     if (response.ok) {
       return parseSuccess<T>(response)
@@ -83,7 +113,7 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
     if (error.status === 403 && error.code === 'CSRF_INVALID' && !isRetry) {
       options.onCsrfInvalid?.()
       await rotateCsrf()
-      return request<T>(method, path, body, true)
+      return request<T>(method, path, body, requestOptions, true)
     }
 
     if (error.status === 401 && error.code === 'AUTHENTICATION_REQUIRED') {
@@ -94,7 +124,12 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
   }
 
   return {
-    get: <T>(path: string) => request<T>('GET', path),
-    post: <T>(path: string, body?: unknown) => request<T>('POST', path, body),
+    get: <T>(path: string) => request<T>('GET', path, undefined, {}),
+    post: <T>(path: string, body?: unknown, requestOptions: RequestOptions = {}) =>
+      request<T>('POST', path, body, requestOptions),
+    put: <T>(path: string, body?: unknown, requestOptions: RequestOptions = {}) =>
+      request<T>('PUT', path, body, requestOptions),
+    del: <T>(path: string, requestOptions: RequestOptions = {}) =>
+      request<T>('DELETE', path, undefined, requestOptions),
   }
 }

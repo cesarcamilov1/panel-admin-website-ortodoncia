@@ -3,6 +3,8 @@ import { type AuthApi } from './authApi'
 import { type AuthClient, createAuthClient } from './authClient'
 import { AuthContext, type AuthState } from './authContext'
 import { createCsrfTokenStore } from './csrfTokenStore'
+import type { HttpClient } from '../../../shared/api/http'
+import { HttpProvider } from '../../../shared/api/HttpProvider'
 import { ApiError, isApiError } from '../../../shared/api/problem'
 
 function isSessionGone(error: unknown): boolean {
@@ -15,10 +17,12 @@ function toApiError(error: unknown): ApiError {
 
 interface AuthProviderProps {
   api?: AuthApi
+  /** Injection seam: tests and composition roots can supply the app-wide client. */
+  http?: HttpClient
   children: ReactNode
 }
 
-export function AuthProvider({ api: injectedApi, children }: AuthProviderProps) {
+export function AuthProvider({ api: injectedApi, http: injectedHttp, children }: AuthProviderProps) {
   const [state, setState] = useState<AuthState>({ status: 'loading' })
   const [localCsrfStore] = useState(() => createCsrfTokenStore())
   const [authClient] = useState<AuthClient | null>(() =>
@@ -27,6 +31,7 @@ export function AuthProvider({ api: injectedApi, children }: AuthProviderProps) 
 
   const api = injectedApi ?? authClient!.api
   const csrfStore = injectedApi ? localCsrfStore : authClient!.csrfTokenStore
+  const http = injectedHttp ?? authClient?.http ?? null
 
   const refresh = useCallback(async () => {
     try {
@@ -104,5 +109,9 @@ export function AuthProvider({ api: injectedApi, children }: AuthProviderProps) 
     [state, login, verifyMfa, logout, logoutAll, refresh, forgotPassword, resetPassword],
   )
 
-  return <AuthContext value={value}>{children}</AuthContext>
+  return (
+    <AuthContext value={value}>
+      {http ? <HttpProvider client={http}>{children}</HttpProvider> : children}
+    </AuthContext>
+  )
 }

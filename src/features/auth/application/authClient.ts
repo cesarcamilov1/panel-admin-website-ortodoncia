@@ -5,6 +5,8 @@ import { createCsrfTokenStore } from './csrfTokenStore'
 export interface AuthClient {
   api: AuthApi
   csrfTokenStore: ReturnType<typeof createCsrfTokenStore>
+  /** Published app-wide so every feature mutates through this same CSRF token store. */
+  http: HttpClient
 }
 
 export function createAuthClient(onUnauthorized: () => void): AuthClient {
@@ -20,5 +22,5 @@ export function createAuthClient(onUnauthorized: () => void): AuthClient {
     },
   })
 
-  return { api: createAuthApi(http), csrfTokenStore }
+  return { api: createAuthApi(http), csrfTokenStore, http }
 }
