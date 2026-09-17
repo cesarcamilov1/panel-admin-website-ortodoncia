@@ -10,9 +10,10 @@ import styles from './Sidebar.module.css'
 
 interface SidebarProps {
   current: SectionId
+  onNavigate?: () => void
 }
 
-export function Sidebar({ current }: SidebarProps) {
+export function Sidebar({ current, onNavigate }: SidebarProps) {
   const { state } = useAuth()
   const user = state.status === 'authenticated' ? state.user : null
 
@@ -38,6 +39,7 @@ export function Sidebar({ current }: SidebarProps) {
               return (
                 <NavLink
                   key={item.id}
+                  onClick={onNavigate}
                   to={sectionPath(item.id)}
                   className={`${styles.item} ${active ? styles.active : ''}`}
                   aria-current={active ? 'page' : undefined}

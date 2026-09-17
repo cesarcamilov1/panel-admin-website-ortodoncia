@@ -146,3 +146,18 @@
   border-top: 1px solid var(--color-border-soft);
   color: var(--color-muted-2);
 }
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    flex: 1;
+    min-height: 0;
+    border: 0;
+  }
+
+  .item {
+    min-height: 44px;
+  }
+}

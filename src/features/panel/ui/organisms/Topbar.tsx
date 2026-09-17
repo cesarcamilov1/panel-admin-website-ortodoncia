@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../../../../shared/ui/atoms/Button'
 import {
@@ -10,14 +11,16 @@ import {
 import styles from './Topbar.module.css'
 
 interface TopbarProps {
+  menuButton?: ReactNode
   title: string
   backTo?: { label: string; to: string }
   onNewAppointment: () => void
 }
 
-export function Topbar({ title, backTo, onNewAppointment }: TopbarProps) {
+export function Topbar({ menuButton, title, backTo, onNewAppointment }: TopbarProps) {
   return (
     <header className={styles.topbar}>
+      {menuButton}
       <div className={styles.titleBlock}>
         {backTo ? (
           <Link to={backTo.to} className={styles.crumb}>

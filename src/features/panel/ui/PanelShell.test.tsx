@@ -1,9 +1,14 @@
-import { screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createFakeAuthApi, renderAuthenticated } from '../../../test/auth'
 import { PanelShell } from './PanelShell'
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
 
 function renderPanel(initialPath = '/') {
   const api = createFakeAuthApi({
@@ -97,5 +102,65 @@ describe('<PanelShell />', () => {
 
     expect(api.logout).toHaveBeenCalled()
     expect(await screen.findByText('login page')).toBeInTheDocument()
+  })
+})
+
+describe('mobile navigation', () => {
+  function mobileViewport() {
+    const media = {
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }
+    vi.stubGlobal('matchMedia', vi.fn(() => media))
+    HTMLDialogElement.prototype.showModal = function () {
+      this.setAttribute('open', '')
+    }
+    HTMLDialogElement.prototype.close = function () {
+      this.removeAttribute('open')
+      this.dispatchEvent(new Event('close'))
+    }
+    return media
+  }
+
+  it('keeps closed navigation out of the document and closes after navigating', async () => {
+    mobileViewport()
+    const user = userEvent.setup()
+    renderPanel()
+    const toggle = await screen.findByRole('button', { name: 'Abrir menú' })
+    expect(screen.queryByRole('link', { name: /Pacientes/ })).not.toBeInTheDocument()
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await user.click(toggle)
+    expect(screen.getByRole('dialog', { name: 'Menú del panel' })).toBeInTheDocument()
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    await user.click(screen.getByRole('link', { name: /Pacientes/ }))
+    expect(screen.getByText('Listado de pacientes')).toBeInTheDocument()
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(toggle).toHaveFocus()
+  })
+
+  it('dismisses from the close button and native Escape cancellation', async () => {
+    mobileViewport()
+    const user = userEvent.setup()
+    renderPanel()
+    const toggle = await screen.findByRole('button', { name: 'Abrir menú' })
+    await user.click(toggle)
+    await user.click(screen.getByRole('button', { name: 'Cerrar menú' }))
+    expect(toggle).toHaveFocus()
+    await user.click(toggle)
+    fireEvent(screen.getByRole('dialog'), new Event('cancel', { cancelable: true }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(toggle).toHaveFocus()
+  })
+
+  it('closes and restores desktop navigation when the viewport grows', async () => {
+    const media = mobileViewport()
+    const user = userEvent.setup()
+    renderPanel()
+    await user.click(await screen.findByRole('button', { name: 'Abrir menú' }))
+    act(() => media.addEventListener.mock.calls[0][1]({ matches: false }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Abrir menú' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Pacientes/ })).toBeInTheDocument()
   })
 })
