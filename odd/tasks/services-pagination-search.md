@@ -11,7 +11,7 @@ Make the service catalog easier to browse, with search beside the status filters
 - No backend changes, public booking, remote operations, push, PR, or merge.
 
 ## Tasks
-- [ ] T1 Add responsive search and pagination with regression tests, browser verification, and a work-unit commit.
+- [x] T1 Add responsive search and pagination with regression tests, browser verification, and a work-unit commit.
 
 ## Execution
 - Route: delegated direct; one writer, parent verification and commit.
@@ -26,7 +26,10 @@ Make the service catalog easier to browse, with search beside the status filters
 - RDD: on (global); initial empty-worktree assessment unavailable (no pending changes). Assess committed candidate and relay native consent when required.
 
 ## Progress and next step
-Implementation and functional checks passed; work-unit commit and native assessment pending.
+Implementation and functional checks passed in `fb27bdbbd5d50e53e7c8e6e7af28d6aecc18d155`.
+Work-unit authored count: 276 (263 additions, 13 deletions), including this document.
+RDD assessment: medium (`executable_change`); deferred to this completed slice. Native preflight requests fresh review.start; consent/review pending, no approval claimed.
+Next step: request native candidate review consent. No push or PR performed. Evidence-only follow-up stays in the same slice.
 
 ### Verification evidence
 - Focused RED: 5 failed / 12 passed; GREEN: 17 passed.
@@ -36,3 +39,4 @@ Implementation and functional checks passed; work-unit commit and native assessm
 - Check failures resolved: generic ESLint invocation was inappropriate (repository uses oxlint); temporary screenshot harness had a quoting error, fixed and rerun. Initial curl found no server on 5173; started a dedicated local Vite instance.
 - Skipped: Chromium/Safari and real backend writes; all browser API requests mocked and non-local requests blocked.
 - Source scope: ServicesPage.tsx, ServicesPage.module.css, ServicesPage.test.tsx, Toolbar.tsx. Authored source count: 238 (225 additions, 13 deletions), plus this document.
+- Preflight initially rejected an unsupported contract without mutation; corrected to `gentle-ai.review-integration/v1` and succeeded.
