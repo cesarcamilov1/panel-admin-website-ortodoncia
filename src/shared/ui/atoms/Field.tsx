@@ -6,11 +6,13 @@ import styles from './Field.module.css'
 interface FieldShellProps {
   label?: string
   hint?: string
-  children: (id: string) => ReactNode
+  error?: string
+  children: (id: string, errorId: string | undefined) => ReactNode
 }
 
-export function Field({ label, hint, children }: FieldShellProps) {
+export function Field({ label, hint, error, children }: FieldShellProps) {
   const id = useId()
+  const errorId = error ? `${id}-error` : undefined
   return (
     <div className={styles.field}>
       {label ? (
@@ -18,29 +20,59 @@ export function Field({ label, hint, children }: FieldShellProps) {
           {label}
         </label>
       ) : null}
-      {children(id)}
-      {hint ? <p className={styles.hint}>{hint}</p> : null}
+      {children(id, errorId)}
+      {error ? (
+        <p role="alert" id={errorId} className={styles.error}>
+          {error}
+        </p>
+      ) : hint ? (
+        <p className={styles.hint}>{hint}</p>
+      ) : null}
     </div>
   )
 }
 
-type TextFieldProps = InputHTMLAttributes<HTMLInputElement> & { label?: string; hint?: string }
+type TextFieldProps = InputHTMLAttributes<HTMLInputElement> & {
+  label?: string
+  hint?: string
+  error?: string
+}
 
-export function TextField({ label, hint, className, ...props }: TextFieldProps) {
+export function TextField({ label, hint, error, className, ...props }: TextFieldProps) {
   return (
-    <Field label={label} hint={hint}>
-      {(id) => <input id={id} className={[styles.input, className].filter(Boolean).join(' ')} {...props} />}
+    <Field label={label} hint={hint} error={error}>
+      {(id, errorId) => (
+        <input
+          id={id}
+          className={[styles.input, error ? styles.inputInvalid : null, className].filter(Boolean).join(' ')}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={errorId}
+          {...props}
+        />
+      )}
     </Field>
   )
 }
 
-type TextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string; hint?: string }
+type TextAreaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  label?: string
+  hint?: string
+  error?: string
+}
 
-export function TextArea({ label, hint, className, ...props }: TextAreaProps) {
+export function TextArea({ label, hint, error, className, ...props }: TextAreaProps) {
   return (
-    <Field label={label} hint={hint}>
-      {(id) => (
-        <textarea id={id} className={[styles.textarea, className].filter(Boolean).join(' ')} {...props} />
+    <Field label={label} hint={hint} error={error}>
+      {(id, errorId) => (
+        <textarea
+          id={id}
+          className={[styles.textarea, error ? styles.inputInvalid : null, className]
+            .filter(Boolean)
+            .join(' ')}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={errorId}
+          {...props}
+        />
       )}
     </Field>
   )
@@ -49,17 +81,22 @@ export function TextArea({ label, hint, className, ...props }: TextAreaProps) {
 type SelectFieldProps = SelectHTMLAttributes<HTMLSelectElement> & {
   label?: string
   hint?: string
+  error?: string
   options: string[]
 }
 
-export function SelectField({ label, hint, options, className, ...props }: SelectFieldProps) {
+export function SelectField({ label, hint, error, options, className, ...props }: SelectFieldProps) {
   return (
-    <Field label={label} hint={hint}>
-      {(id) => (
+    <Field label={label} hint={hint} error={error}>
+      {(id, errorId) => (
         <span className={styles.selectWrap}>
           <select
             id={id}
-            className={[styles.input, styles.select, className].filter(Boolean).join(' ')}
+            className={[styles.input, styles.select, error ? styles.inputInvalid : null, className]
+              .filter(Boolean)
+              .join(' ')}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={errorId}
             {...props}
           >
             {options.map((option) => (

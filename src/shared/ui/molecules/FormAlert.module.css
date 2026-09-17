@@ -1,0 +1,31 @@
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-5);
+  margin: 0;
+  padding: var(--space-6) var(--space-7);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-12-5);
+  line-height: 1.5;
+  border: 1px solid transparent;
+}
+
+.error {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-ink);
+}
+
+.success {
+  background: var(--color-ok-bg);
+  color: var(--color-ok-ink);
+}
+
+.info {
+  background: var(--color-info-bg);
+  color: var(--color-info-ink);
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}

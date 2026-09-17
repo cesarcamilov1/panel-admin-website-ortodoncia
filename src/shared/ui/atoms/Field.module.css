@@ -17,6 +17,16 @@
   color: var(--color-muted-2);
 }
 
+.error {
+  margin: 0;
+  font-size: var(--font-size-11);
+  color: var(--color-danger-ink);
+}
+
+.inputInvalid {
+  border-color: var(--color-danger-ink);
+}
+
 .input {
   width: 100%;
   height: 42px;
