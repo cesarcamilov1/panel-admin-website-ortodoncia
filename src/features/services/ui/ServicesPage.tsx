@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Badge } from '../../../shared/ui/atoms/Badge'
 import { Button } from '../../../shared/ui/atoms/Button'
-import { PlusIcon, ReceiptIcon } from '../../../shared/ui/atoms/icons'
+import { TextField } from '../../../shared/ui/atoms/Field'
+import { PlusIcon, ReceiptIcon, SearchIcon } from '../../../shared/ui/atoms/icons'
 import { DataTable, type Column, Stacked } from '../../../shared/ui/molecules/DataTable'
 import { FormAlert } from '../../../shared/ui/molecules/FormAlert'
 import { Toolbar } from '../../../shared/ui/molecules/Toolbar'
@@ -22,6 +23,7 @@ import { ServiceFormModal } from './organisms/ServiceFormModal'
 import styles from './ServicesPage.module.css'
 
 const FILTERS = ['Todos', 'Activos', 'Pausados'] as const
+const PAGE_SIZE = 10
 type Filter = (typeof FILTERS)[number]
 
 type Dialog =
@@ -39,6 +41,10 @@ function matchesFilter(service: CatalogService, filter: Filter): boolean {
   return true
 }
 
+function normalizeSearch(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim()
+}
+
 /** Route-level container: wires the app-wide http client into the screen. */
 export function ServicesPage() {
   const api = useServicesApi()
@@ -49,14 +55,25 @@ export function ServicesScreen({ api }: { api: ServicesApi }) {
   const { notify } = usePanelActions()
   const catalog = useServiceCatalog(api)
   const [filter, setFilter] = useState<Filter>('Todos')
+  const [query, setQuery] = useState('')
+  const [page, setPage] = useState(1)
   const [dialog, setDialog] = useState<Dialog>({ kind: 'closed' })
   const [rowError, setRowError] = useState<string | null>(null)
 
   const services = catalog.state.status === 'ready' ? catalog.state.services : NO_SERVICES
-  const visible = useMemo(
-    () => services.filter((service) => matchesFilter(service, filter)),
-    [services, filter],
+  const normalizedQuery = normalizeSearch(query)
+  const matching = useMemo(
+    () => services.filter((service) => matchesFilter(service, filter)
+      && [service.name, service.code, service.description]
+        .some((value) => normalizeSearch(value).includes(normalizedQuery))),
+    [services, filter, normalizedQuery],
   )
+  const pageCount = Math.max(1, Math.ceil(matching.length / PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount)
+  // Clamp stored state too, so a later mutation cannot restore an obsolete page.
+  if (page !== currentPage) setPage(currentPage)
+  const pageStart = (currentPage - 1) * PAGE_SIZE
+  const visible = matching.slice(pageStart, pageStart + PAGE_SIZE)
   const pausedCount = services.filter((service) => !service.isActive).length
 
   const closeDialog = () => setDialog({ kind: 'closed' })
@@ -168,7 +185,30 @@ export function ServicesScreen({ api }: { api: ServicesApi }) {
 
   return (
     <div className={styles.page}>
-      <Toolbar filters={[...FILTERS]} selectedFilter={filter} onFilterChange={(next) => setFilter(next as Filter)}>
+      <Toolbar
+        filters={[...FILTERS]}
+        selectedFilter={filter}
+        onFilterChange={(next) => {
+          setFilter(next as Filter)
+          setPage(1)
+        }}
+        afterFilters={
+          <div className={styles.search}>
+            <SearchIcon className={styles.searchIcon} />
+            <TextField
+              type="search"
+              aria-label="Buscar servicios"
+              placeholder="Buscar servicios…"
+              className={styles.searchInput}
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value)
+                setPage(1)
+              }}
+            />
+          </div>
+        }
+      >
         <Button onClick={() => setDialog({ kind: 'create' })}>
           <PlusIcon />
           Nuevo servicio
@@ -198,13 +238,36 @@ export function ServicesScreen({ api }: { api: ServicesApi }) {
             Todavía no hay servicios en el catálogo. Crea el primero para poder agendar.
           </p>
         ) : (
-          <DataTable
-            columns={columns}
-            rows={visible}
-            rowKey={(service) => service.id}
-            onRowClick={(service) => setDialog({ kind: 'edit', service })}
-            footer={`${services.length} ${services.length === 1 ? 'servicio' : 'servicios'} · ${pausedCount} en pausa`}
-          />
+          <>
+            {matching.length === 0 ? (
+              <p className={styles.state} role="status">
+                No hay servicios que coincidan con la búsqueda y los filtros.
+              </p>
+            ) : null}
+            <DataTable
+              columns={columns}
+              rows={visible}
+              rowKey={(service) => service.id}
+              onRowClick={(service) => setDialog({ kind: 'edit', service })}
+              footer={`${services.length} ${services.length === 1 ? 'servicio' : 'servicios'} · ${pausedCount} en pausa`}
+            />
+            {matching.length > 0 ? (
+              <nav className={styles.pagination} aria-label="Paginación de servicios">
+                <span className={styles.resultCount} role="status">
+                  {pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, matching.length)} de {matching.length} resultados
+                </span>
+                <div className={styles.pageControls}>
+                  <Button variant="secondary" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>
+                    Anterior
+                  </Button>
+                  <span className={styles.pageNumber}>Página {currentPage} de {pageCount}</span>
+                  <Button variant="secondary" disabled={currentPage === pageCount} onClick={() => setPage(currentPage + 1)}>
+                    Siguiente
+                  </Button>
+                </div>
+              </nav>
+            ) : null}
+          </>
         )
       ) : null}
 

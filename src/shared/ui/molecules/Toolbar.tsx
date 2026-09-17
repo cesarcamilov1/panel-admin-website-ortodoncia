@@ -6,10 +6,11 @@ interface ToolbarProps {
   filters?: string[]
   selectedFilter?: string
   onFilterChange?: (filter: string) => void
+  afterFilters?: ReactNode
   children?: ReactNode
 }
 
-export function Toolbar({ filters = [], selectedFilter, onFilterChange, children }: ToolbarProps) {
+export function Toolbar({ filters = [], selectedFilter, onFilterChange, afterFilters, children }: ToolbarProps) {
   return (
     <div className={styles.toolbar}>
       {filters.map((filter) => (
@@ -21,6 +22,7 @@ export function Toolbar({ filters = [], selectedFilter, onFilterChange, children
           {filter}
         </Chip>
       ))}
+      {afterFilters}
       <span className={styles.spacer} />
       {children}
     </div>
