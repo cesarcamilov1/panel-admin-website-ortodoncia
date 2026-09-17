@@ -20,7 +20,7 @@ describe('useServicesApi', () => {
     )
 
     expect(screen.getByText(
-      'create,list,listLocationServices,listPublicLocationServices,putFiscalConfig,replaceLocationServices,update',
+      'create,list,putFiscalConfig,update',
     )).toBeInTheDocument()
   })
 })
