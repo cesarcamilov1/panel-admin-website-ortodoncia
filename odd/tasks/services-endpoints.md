@@ -68,6 +68,53 @@ Started and completed 2026-09-17. TDD mode: enabled (source: global CLAUDE.md). 
   inactive rows (`WHERE NOT active_only OR is_active`), hence the `includeInactive` naming.
 - Prices stay exact decimal strings end to end; `formatPrice` is display-only.
 
-### Next step
-Wire the `servicios` section to this API. It still renders mock data through
-`RecordsPage section="servicios"`.
+## Phase 2 — wire the UI (authorized 2026-09-17)
+
+Scope: replace the mock `RecordsPage section="servicios"` with a real screen that
+consumes the catalog endpoints, following the established design line (Toolbar chips +
+DataTable + modal in the shape of `NewAppointmentModal`).
+
+### Connectable now
+- [x] T6 `useServiceCatalog(api)`: loading/ready/error state machine, reload, create,
+      update, setActive, saveFiscalConfig; refetches on a version conflict.
+- [x] T7 `ServiceFormModal`: create/edit form, per-field validation from the domain, and
+      server field errors mapped back onto the offending input.
+- [x] T8 `FiscalConfigModal`: SAT fiscal config with add/remove tax-rule rows, defaulting
+      to IVA 16% traslado.
+- [x] T9 `ServicesPage` (container) + `ServicesScreen` (testable) + CSS module, routed in
+      `App.tsx`; the dead `servicios` mock removed from `records/domain/sections.ts`.
+- [x] T10 Full check run and commit.
+
+### Phase 2 verification evidence
+- `npx vitest run`: 314 passed, 30 files.
+- `npx tsc -b --force`: clean.
+- `npx oxlint`: clean.
+- `npm run build`: succeeds (143 modules).
+- RED observed before T6, T7, T8 and T9.
+
+### Phase 2 notes
+- Two Phase-2 test-harness corrections, both test-side, implementation unchanged: a
+  rejecting `act()` leaves the queued reload unflushed (conflict test now awaits the
+  promise directly), and `findByText(/fecha de inicio/i)` matched two nodes because a tax
+  rule inherits the configuration start date (now asserts the exact field message).
+- `ServicesScreen` keeps a module-level `NO_SERVICES` constant: a fresh `[]` literal per
+  render defeated the filter memo and oxlint caught it.
+- Row actions call `stopPropagation` so pausing a service does not also open the edit
+  form behind the row click.
+
+### Not connectable without new scope (flagged, not half-built)
+- `listLocationServices` / `replaceLocationServices` belong to a sedes/locations screen.
+  They need `GET /api/v1/schedules/locations`, which has no frontend client yet. That is a
+  different feature, not part of the service catalog.
+- `listPublicLocationServices` serves a public booking flow that does not exist in this
+  admin panel.
+
+### Contract gaps found
+1. The mock `servicios` table had a `Consentimiento` column. `CatalogService` has no such
+   field and the backend exposes none, so the column is dropped rather than faked.
+2. `fiscal-config` has only a `PUT`, no `GET` (verified in `api/openapi.yaml` and
+   `scheduling.ServiceRoutes`). Consequences, both surfaced in the UI rather than hidden:
+   the form cannot prefill the current configuration, and it cannot send
+   `expected_version`, so that write has no optimistic-concurrency guard. The backend
+   allows it (`required=false`). The modal states plainly that it replaces the whole
+   configuration.

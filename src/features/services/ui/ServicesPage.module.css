@@ -1,0 +1,80 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.muted {
+  display: block;
+  font-size: var(--font-size-12-5);
+  color: var(--color-muted);
+}
+
+.price {
+  display: block;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: var(--letter-spacing-hair);
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background 110ms ease, color 110ms ease;
+}
+
+.action:hover,
+.action:focus-visible {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.actionText {
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-12-5);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: background 110ms ease;
+}
+
+.actionText:hover,
+.actionText:focus-visible {
+  background: var(--color-accent-soft);
+}
+
+.state {
+  margin: 0;
+  padding: var(--space-15) var(--space-10);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-13);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-7);
+  padding: var(--space-10);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-xl);
+}
