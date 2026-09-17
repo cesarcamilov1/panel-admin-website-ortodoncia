@@ -19,10 +19,25 @@ interface DataTableProps<Row> {
   footer?: ReactNode
 }
 
+/**
+ * A fixed column keeps its width and never gives it up; a growing column sizes from its
+ * grow factor. Without `flexBasis: 0` a growing cell starts at its max-content width, so
+ * one long value claims the row and squeezes every fixed column beside it.
+ */
 function cellStyle<Row>(column: Column<Row>) {
+  if (column.width) {
+    return {
+      flexGrow: 0,
+      flexShrink: 0,
+      flexBasis: column.width,
+      textAlign: column.align ?? 'left',
+    } as const
+  }
   return {
-    width: column.width ?? 'auto',
-    flexGrow: column.width ? 0 : (column.grow ?? 1),
+    flexGrow: column.grow ?? 1,
+    flexShrink: 1,
+    flexBasis: 0,
+    minWidth: 0,
     textAlign: column.align ?? 'left',
   } as const
 }
@@ -72,7 +87,13 @@ export function Primary({ children }: { children: ReactNode }) {
 }
 
 export function Sub({ children }: { children: ReactNode }) {
-  return <span className={styles.sub}>{children}</span>
+  // The text is clipped to one line, so expose the full value on hover.
+  const title = typeof children === 'string' ? children : undefined
+  return (
+    <span className={styles.sub} title={title}>
+      {children}
+    </span>
+  )
 }
 
 export function Stacked({ top, bottom }: { top: ReactNode; bottom: ReactNode }) {
