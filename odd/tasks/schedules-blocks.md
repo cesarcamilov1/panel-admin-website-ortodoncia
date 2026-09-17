@@ -108,5 +108,24 @@ instruction.
 - T4 GREEN: `pnpm test:run` -> 46 files, 532 tests passed; `pnpm exec tsc -b` -> no errors;
   `pnpm exec oxlint` -> clean.
 
+## Native review outcome (honest record)
+- RDD is on (global). `gentle-ai review assess --base-ref master --committed-only` -> medium
+  (executable change), so the candidate is the PR slice.
+- The user granted consent; lineage `review-b82888af433ce158` started with one lens
+  (`review-reliability`). Its capture returned `correction_required`, but the findings were
+  never surfaced: the bound STATUS then asked for an intended-untracked selection because
+  the T3 files were still being written, and the result cannot be read back.
+- After T3 and T4 were committed, the bound STATUS answers `recover` with disposition
+  `scope_changed`, which needs a maintainer authorization binding. The transition carries no
+  `submission` descriptor and no invocation, and `gentle-ai review schema` does not expose
+  `gentle-ai.review-recovery-authorization/v1`, so no provider-issued command exists to run.
+  Two documented binding shapes were refused with
+  "correction-required scope recovery requires an exact maintainer authorization binding".
+- The user chose to continue without reporting the apparent provider defect. The captured
+  decline invocation was executed once and refused with `stale_target_identity`,
+  `mutation_outcome: not_started` — nothing was mutated, and all state is preserved.
+- Net: this slice carries **no review receipt**. Delivery follows ordinary repository policy.
+
 ## Next step
-- Native review of the slice, then the pull request if the user wants one.
+- The user decides whether to open the pull request, and whether to re-enter the review
+  lifecycle from a fresh preflight on the current HEAD.
