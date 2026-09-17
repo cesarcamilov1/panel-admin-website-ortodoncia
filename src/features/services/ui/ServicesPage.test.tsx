@@ -60,6 +60,7 @@ describe('ServicesScreen loading and failure', () => {
   it('announces that the catalog is loading', () => {
     setup(fakeApi({ list: vi.fn(() => new Promise<CatalogService[]>(() => {})) }))
     expect(screen.getByRole('status')).toHaveTextContent(/cargando/i)
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   })
 
   it('offers a retry when the catalog cannot be loaded', async () => {
@@ -70,6 +71,7 @@ describe('ServicesScreen loading and failure', () => {
     const { user } = setup(fakeApi({ list }))
 
     expect(await screen.findByText(/revisa tu conexión/i)).toBeInTheDocument()
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Reintentar' }))
     expect(await screen.findByText('Limpieza dental')).toBeInTheDocument()
@@ -78,6 +80,7 @@ describe('ServicesScreen loading and failure', () => {
   it('shows an empty state when there is no catalog yet', async () => {
     setup(fakeApi({ list: vi.fn().mockResolvedValue([]) }))
     expect(await screen.findByText(/todavía no hay servicios/i)).toBeInTheDocument()
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   })
 })
 
@@ -228,5 +231,87 @@ describe('ServicesScreen fiscal configuration', () => {
       }),
     )
     expect(notify).toHaveBeenCalledWith('Datos fiscales de Limpieza dental guardados.')
+  })
+})
+
+describe('ServicesScreen search and pagination', () => {
+  const catalog = Array.from({ length: 21 }, (_, index) => service({
+    id: `svc-${index + 1}`,
+    code: `S-${String(index + 1).padStart(2, '0')}`,
+    name: `Servicio ${index + 1}`,
+    description: index === 20 ? 'Evaluación clínica' : '',
+    isActive: index < 11,
+  }))
+
+  it('shows ten rows per page and disables navigation at both boundaries', async () => {
+    const { user } = setup(fakeApi({ list: vi.fn().mockResolvedValue(catalog) }))
+    await screen.findByText('Servicio 1')
+    expect(screen.getAllByRole('row')).toHaveLength(11)
+    expect(screen.getByRole('button', { name: 'Anterior' })).toBeDisabled()
+    expect(screen.getByText('1–10 de 21 resultados')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }))
+    expect(screen.getByText('Servicio 11')).toBeInTheDocument()
+    expect(screen.queryByText('Servicio 1')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }))
+    expect(screen.getAllByRole('row')).toHaveLength(2)
+    expect(screen.getByText('21–21 de 21 resultados')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Siguiente' })).toBeDisabled()
+    await user.click(screen.getByRole('button', { name: 'Anterior' }))
+    expect(screen.getByText('Página 2 de 3')).toBeInTheDocument()
+  })
+
+  it('searches beyond the page, normalizes accents/case and combines status', async () => {
+    const { api, user } = setup(fakeApi({ list: vi.fn().mockResolvedValue(catalog) }))
+    await screen.findByText('Servicio 1')
+    const search = screen.getByRole('searchbox', { name: 'Buscar servicios' })
+    await user.type(search, '  EVALUACION  ')
+    expect(screen.getByText('Servicio 21')).toBeInTheDocument()
+    expect(screen.getByText('21 servicios · 10 en pausa')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Activos' }))
+    expect(screen.getByText('No hay servicios que coincidan con la búsqueda y los filtros.')).toBeInTheDocument()
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Pausados' }))
+    expect(screen.getByText('Servicio 21')).toBeInTheDocument()
+    await user.clear(search)
+    await user.type(search, 's-20')
+    expect(screen.getByText('Servicio 20')).toBeInTheDocument()
+    expect(screen.queryByText('Servicio 21')).not.toBeInTheDocument()
+    expect(api.list).toHaveBeenCalledTimes(1)
+  })
+
+  it('resets the page when either the query or status changes', async () => {
+    const { user } = setup(fakeApi({ list: vi.fn().mockResolvedValue(catalog) }))
+    await screen.findByText('Servicio 1')
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }))
+    const search = screen.getByRole('searchbox', { name: 'Buscar servicios' })
+    await user.type(search, 'Servicio')
+    expect(screen.getByText('Página 1 de 3')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }))
+    await user.clear(search)
+    expect(screen.getByText('Página 1 de 3')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }))
+    await user.click(screen.getByRole('button', { name: 'Activos' }))
+    expect(screen.getByText('Página 1 de 2')).toBeInTheDocument()
+  })
+
+  it('clamps the page when pausing the last result removes the final page', async () => {
+    const update = vi.fn().mockResolvedValue({ ...catalog[10], isActive: false, version: 4 })
+    const { user } = setup(fakeApi({ list: vi.fn().mockResolvedValue(catalog), update }))
+    await screen.findByText('Servicio 1')
+    await user.click(screen.getByRole('button', { name: 'Activos' }))
+    await user.click(screen.getByRole('button', { name: 'Siguiente' }))
+    await user.click(screen.getByRole('button', { name: 'Pausar Servicio 11' }))
+    expect(await screen.findByText('Página 1 de 1')).toBeInTheDocument()
+    expect(screen.getByText('1–10 de 10 resultados')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Siguiente' })).toBeDisabled()
+    expect(screen.getByText('21 servicios · 11 en pausa')).toBeInTheDocument()
+  })
+
+  it('shows an honest empty status filter and no pagination', async () => {
+    const { user } = setup(fakeApi({ list: vi.fn().mockResolvedValue([service()]) }))
+    await screen.findByText('Limpieza dental')
+    await user.click(screen.getByRole('button', { name: 'Pausados' }))
+    expect(screen.getByText('No hay servicios que coincidan con la búsqueda y los filtros.')).toBeInTheDocument()
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
   })
 })
