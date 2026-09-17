@@ -52,9 +52,10 @@ export function ScheduleBlockModal({ locations, onClose, onSubmit }: ScheduleBlo
     setErrors((current) => ({ ...current, [key]: undefined }))
   }
 
-  const locationOptionLabel = draft.locationId
-    ? (locations.find((location) => location.id === draft.locationId)?.name ?? NO_LOCATION)
-    : NO_LOCATION
+  const locationOptions = [
+    { value: '', label: NO_LOCATION },
+    ...locations.map((location) => ({ value: location.id, label: location.name })),
+  ]
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -128,13 +129,10 @@ export function ScheduleBlockModal({ locations, onClose, onSubmit }: ScheduleBlo
 
           <SelectField
             label="Sede"
-            options={[NO_LOCATION, ...locations.map((location) => location.name)]}
-            value={locationOptionLabel}
+            options={locationOptions}
+            value={draft.locationId}
             hint="Sede principal usa la sede predeterminada del profesional."
-            onChange={(event) => {
-              const found = locations.find((location) => location.name === event.target.value)
-              patch('locationId', found ? found.id : '')
-            }}
+            onChange={(event) => patch('locationId', event.target.value)}
           />
         </div>
 

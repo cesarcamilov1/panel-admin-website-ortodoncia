@@ -78,11 +78,24 @@ export function TextArea({ label, hint, error, className, ...props }: TextAreaPr
   )
 }
 
+export interface SelectOption {
+  value: string
+  label: string
+}
+
 type SelectFieldProps = SelectHTMLAttributes<HTMLSelectElement> & {
   label?: string
   hint?: string
   error?: string
-  options: string[]
+  /**
+   * A plain string is its own value, which is enough for a closed list of labels. Pass
+   * `{ value, label }` when the value is an id: two rows may share a display name.
+   */
+  options: (string | SelectOption)[]
+}
+
+function toOption(option: string | SelectOption): SelectOption {
+  return typeof option === 'string' ? { value: option, label: option } : option
 }
 
 export function SelectField({ label, hint, error, options, className, ...props }: SelectFieldProps) {
@@ -99,8 +112,10 @@ export function SelectField({ label, hint, error, options, className, ...props }
             aria-describedby={errorId}
             {...props}
           >
-            {options.map((option) => (
-              <option key={option}>{option}</option>
+            {options.map(toOption).map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
             ))}
           </select>
           <ChevronDownIcon className={styles.selectIcon} />

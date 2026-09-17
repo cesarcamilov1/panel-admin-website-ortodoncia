@@ -100,9 +100,10 @@ export function SchedulesScreen({
   const week = schedules.state.status === 'ready' ? groupByWeekday(schedules.state.schedules) : null
   const blockList = blocks.state.status === 'ready' ? blocks.state.blocks : []
 
-  const locationFilterLabel = locationId
-    ? (locations.find((location) => location.id === locationId)?.name ?? NO_LOCATION_FILTER)
-    : NO_LOCATION_FILTER
+  const locationOptions = [
+    { value: '', label: NO_LOCATION_FILTER },
+    ...locations.map((location) => ({ value: location.id, label: location.name })),
+  ]
 
   const handleCreateSchedule = async (draft: WorkScheduleDraft) => {
     await schedules.create(draft)
@@ -152,12 +153,9 @@ export function SchedulesScreen({
         <Toolbar>
           <SelectField
             label="Sede"
-            options={[NO_LOCATION_FILTER, ...locations.map((location) => location.name)]}
-            value={locationFilterLabel}
-            onChange={(event) => {
-              const found = locations.find((location) => location.name === event.target.value)
-              setLocationId(found ? found.id : '')
-            }}
+            options={locationOptions}
+            value={locationId}
+            onChange={(event) => setLocationId(event.target.value)}
           />
         </Toolbar>
 

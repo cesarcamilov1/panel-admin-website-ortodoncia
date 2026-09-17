@@ -74,6 +74,27 @@ describe('WorkScheduleModal submission', () => {
       expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ locationId: 'loc-2' })),
     )
   })
+
+  it('tells two locations with the same name apart', async () => {
+    // `practice_locations` has no unique index on `name`, so the option value must be the
+    // id: picking the second Sede Roma has to send the second id, not the first.
+    const { onSubmit, user } = setup({
+      locations: [
+        location({ id: 'loc-1', name: 'Sede Roma' }),
+        location({ id: 'loc-2', name: 'Sede Roma' }),
+      ],
+    })
+
+    await user.type(screen.getByLabelText('Hora de inicio'), '09:00')
+    await user.type(screen.getByLabelText('Hora de fin'), '14:00')
+    const [, second] = screen.getAllByRole('option', { name: 'Sede Roma' })
+    await user.selectOptions(screen.getByLabelText('Sede'), second)
+    await user.click(screen.getByRole('button', { name: 'Crear franja' }))
+
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ locationId: 'loc-2' })),
+    )
+  })
 })
 
 describe('WorkScheduleModal failures', () => {

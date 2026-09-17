@@ -72,7 +72,7 @@ instruction.
       `useSchedulesApi`, `useWorkSchedules` and `useScheduleBlocks` hooks.
 - [x] T3 — UI: rewrite `SchedulesPage` over real data, with the week grid, the range
       dialog, the block dialog, the location filter, and loading/error/empty states.
-- [ ] T4 — Identify the location select by id, not by name: `SelectField` only accepts
+- [x] T4 — Identify the location select by id, not by name: `SelectField` only accepts
       `string[]` and renders options without a `value`, so the three location selects map
       the chosen label back to a location. `practice_locations` has no unique index on
       `name` (migration 000026 only guards `(id, provider_user_id)` and one default per
@@ -84,6 +84,8 @@ instruction.
 - T2 done: `schedulesApi.ts`, `useSchedulesApi`, `useWorkSchedules`, `useScheduleBlocks`.
 - T3 done: `SchedulesPage` rewritten over the real API, `WorkScheduleModal` and
   `ScheduleBlockModal` added, `domain/data.ts` mocks deleted (no other importer).
+- T4 done: `SelectField` accepts `{ value, label }` options; the three location selects
+  carry the location id.
 
 ## Verification evidence
 - T1 RED: `pnpm test:run src/features/schedules/domain` -> 2 failed files, "no tests"
@@ -101,5 +103,10 @@ instruction.
 - Parent spot check: `pnpm test:run` -> 46 files, 529 tests passed; `pnpm exec tsc -b` ->
   no errors; `pnpm exec oxlint` -> clean.
 
+- T4 RED: `pnpm test:run src/shared/ui/atoms/Field.test.tsx` -> 1 failed, "Objects are not
+  valid as a React child (found: object with keys {value, label})".
+- T4 GREEN: `pnpm test:run` -> 46 files, 532 tests passed; `pnpm exec tsc -b` -> no errors;
+  `pnpm exec oxlint` -> clean.
+
 ## Next step
-- T4.
+- Native review of the slice, then the pull request if the user wants one.
