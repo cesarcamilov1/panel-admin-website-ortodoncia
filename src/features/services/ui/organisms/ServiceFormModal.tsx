@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from 'react'
+import { type FormEvent, useEffect, useId, useState } from 'react'
 import { Button } from '../../../../shared/ui/atoms/Button'
 import { TextArea, TextField } from '../../../../shared/ui/atoms/Field'
 import { Toggle } from '../../../../shared/ui/atoms/Toggle'
@@ -27,6 +27,12 @@ const EMPTY_DRAFT: ServiceDraft = {
   isActive: true,
 }
 
+const DURATION_PRESETS = Array.from({ length: 18 }, (_, index) => (index + 1) * 10)
+
+function formatPriceInput(value: string): string {
+  return value.replace(/\.0+$/, '')
+}
+
 /** Server field names map onto draft keys; anything else stays in the banner. */
 const FIELD_BY_SERVER_NAME: Record<string, keyof ServiceDraft> = {
   code: 'code',
@@ -44,10 +50,14 @@ interface ServiceFormModalProps {
 }
 
 export function ServiceFormModal({ service, onClose, onSubmit }: ServiceFormModalProps) {
+  const durationListId = useId()
   const editing = service !== undefined
   const [draft, setDraft] = useState<ServiceDraft>(() =>
     service ? fromCatalogService(service) : EMPTY_DRAFT,
   )
+  const [durationInput, setDurationInput] = useState(() => String(draft.durationMinutes))
+  // Keep display formatting separate so untouched monetary strings retain their precision.
+  const [priceInput, setPriceInput] = useState(() => formatPriceInput(draft.defaultPrice))
   const [errors, setErrors] = useState<ServiceDraftErrors>({})
   const [banner, setBanner] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -145,25 +155,35 @@ export function ServiceFormModal({ service, onClose, onSubmit }: ServiceFormModa
           <div className={styles.pair}>
             <TextField
               label="Duración (minutos)"
-              type="number"
+              type="text"
               inputMode="numeric"
-              min={DURATION_MIN_MINUTES}
-              max={DURATION_MAX_MINUTES}
-              step={DURATION_STEP_MINUTES}
-              value={String(draft.durationMinutes)}
+              list={durationListId}
+              value={durationInput}
               error={errors.durationMinutes}
               hint={`De ${DURATION_MIN_MINUTES} a ${DURATION_MAX_MINUTES}, en pasos de ${DURATION_STEP_MINUTES}.`}
-              onChange={(event) => patch('durationMinutes', Number(event.target.value))}
+              onChange={(event) => {
+                const value = event.target.value
+                setDurationInput(value)
+                patch('durationMinutes', /^[0-9]+$/.test(value) ? Number(value) : Number.NaN)
+              }}
             />
+            <datalist id={durationListId}>
+              {DURATION_PRESETS.map((minutes) => (
+                <option key={minutes} value={minutes}>{minutes} minutos</option>
+              ))}
+            </datalist>
             <TextField
               label="Precio (MXN)"
               inputMode="decimal"
               autoComplete="off"
-              placeholder="850.00"
-              value={draft.defaultPrice}
+              placeholder="850"
+              value={priceInput}
               error={errors.defaultPrice}
-              hint="Sin separador de miles. Punto decimal."
-              onChange={(event) => patch('defaultPrice', event.target.value)}
+              onChange={(event) => {
+                setPriceInput(event.target.value)
+                patch('defaultPrice', event.target.value)
+              }}
+              onBlur={() => setPriceInput(formatPriceInput(priceInput))}
             />
           </div>
 

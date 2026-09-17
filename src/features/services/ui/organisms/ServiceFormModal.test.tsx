@@ -103,8 +103,8 @@ describe('ServiceFormModal in edit mode', () => {
     expect(screen.getByLabelText('Código')).toHaveValue('LIMP-01')
     expect(screen.getByLabelText('Nombre')).toHaveValue('Limpieza dental')
     expect(screen.getByLabelText('Descripción')).toHaveValue('Profilaxis y pulido')
-    expect(screen.getByLabelText('Duración (minutos)')).toHaveValue(45)
-    expect(screen.getByLabelText('Precio (MXN)')).toHaveValue('850.00')
+    expect(screen.getByLabelText('Duración (minutos)')).toHaveValue('45')
+    expect(screen.getByLabelText('Precio (MXN)')).toHaveValue('850')
     expect(screen.getByRole('button', { name: 'Guardar cambios' })).toBeInTheDocument()
   })
 
@@ -179,5 +179,102 @@ describe('ServiceFormModal failures', () => {
     expect(screen.getByRole('button', { name: 'Guardando…' })).toBeDisabled()
 
     release()
+  })
+})
+
+
+describe.each([undefined, existing])('ServiceFormModal shared inputs (%s)', (service) => {
+  const action = service ? 'Guardar cambios' : 'Crear servicio'
+
+  async function prepare() {
+    const result = setup({ service })
+    if (!service) {
+      await result.user.type(screen.getByLabelText('Código'), 'ORTO-01')
+      await result.user.type(screen.getByLabelText('Nombre'), 'Ortodoncia')
+      await result.user.type(screen.getByLabelText('Precio (MXN)'), '850')
+    }
+    return result
+  }
+
+  it('offers editable duration suggestions from 10 to 180 minutes', () => {
+    setup({ service })
+    const input = screen.getByLabelText('Duración (minutos)')
+    expect(screen.getByRole('combobox', { name: 'Duración (minutos)' })).toBe(input)
+    expect(input).toHaveAttribute('inputmode', 'numeric')
+    expect(screen.getByText('De 5 a 480, en pasos de 5.')).toBeInTheDocument()
+    const listId = input.getAttribute('list')
+    expect(listId).toBeTruthy()
+    const list = document.getElementById(listId!)
+    expect(list?.tagName).toBe('DATALIST')
+    expect(Array.from(list!.querySelectorAll('option'), (option) => option.value)).toEqual(
+      Array.from({ length: 18 }, (_, index) => String((index + 1) * 10)),
+    )
+  })
+
+  it('removes the price format hint and shows an integer placeholder', () => {
+    setup({ service })
+    expect(screen.queryByText('Sin separador de miles. Punto decimal.')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Precio (MXN)')).toHaveAttribute('placeholder', '850')
+  })
+
+  it.each([5, 10, 180, 185, 480])('accepts the manual duration %i', async (minutes) => {
+    const { user, onSubmit } = await prepare()
+    const input = screen.getByLabelText('Duración (minutos)')
+    await user.clear(input)
+    expect(input).toHaveValue('')
+    await user.type(input, String(minutes))
+    await user.click(screen.getByRole('button', { name: action }))
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ durationMinutes: minutes }))
+  })
+
+  it.each(['', '4', '37', '485', '30.5', 'abc', '1e2'])('rejects the manual duration "%s"', async (minutes) => {
+    const { user, onSubmit } = await prepare()
+    const input = screen.getByLabelText('Duración (minutos)')
+    await user.clear(input)
+    if (minutes) await user.type(input, minutes)
+    await user.click(screen.getByRole('button', { name: action }))
+    expect(input).toHaveAttribute('aria-invalid', 'true')
+    expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('allows entering decimals and hides only zero fractions on blur', async () => {
+    const { user, onSubmit } = await prepare()
+    const price = screen.getByLabelText('Precio (MXN)')
+    await user.clear(price)
+    await user.type(price, '850.00')
+    expect(price).toHaveValue('850.00')
+    await user.tab()
+    expect(price).toHaveValue('850')
+    await user.clear(price)
+    await user.type(price, '850.50')
+    await user.tab()
+    expect(price).toHaveValue('850.50')
+    await user.click(screen.getByRole('button', { name: action }))
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ defaultPrice: '850.50' }))
+  })
+})
+
+describe('ServiceFormModal display-only formatting', () => {
+  it.each([
+    ['850.00', '850'],
+    ['0.00', '0'],
+    ['850.50', '850.50'],
+    ['1234.567890', '1234.567890'],
+  ])('displays %s as %s without changing its submitted value', async (original, displayed) => {
+    const { user, onSubmit } = setup({ service: { ...existing, defaultPrice: original } })
+    const price = screen.getByLabelText('Precio (MXN)')
+    expect(price).toHaveValue(displayed)
+    await user.click(price)
+    await user.tab()
+    await user.click(screen.getByRole('button', { name: 'Guardar cambios' }))
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ defaultPrice: original }))
+  })
+
+  it('gives each modal its own duration suggestion list', () => {
+    setup()
+    setup({ service: existing })
+    const ids = screen.getAllByLabelText('Duración (minutos)').map((input) => input.getAttribute('list'))
+    expect(ids.every(Boolean)).toBe(true)
+    expect(new Set(ids).size).toBe(2)
   })
 })
