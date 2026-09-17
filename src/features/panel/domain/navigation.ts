@@ -9,6 +9,7 @@ export type SectionId =
   | 'pagos'
   | 'facturacion'
   | 'servicios'
+  | 'sedes'
   | 'horarios'
   | 'recordatorios'
   | 'resenas'
@@ -50,6 +51,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { id: 'pagos', label: 'Pagos y caja' },
       { id: 'facturacion', label: 'Facturación', count: 5 },
       { id: 'servicios', label: 'Servicios' },
+      { id: 'sedes', label: 'Sedes' },
       { id: 'horarios', label: 'Horarios' },
     ],
   },
@@ -81,6 +83,7 @@ export const SECTION_TITLES: Record<SectionId, string> = {
   pagos: 'Pagos y caja',
   facturacion: 'Facturación CFDI',
   servicios: 'Servicios y precios',
+  sedes: 'Sedes y cobertura',
   horarios: 'Horarios y bloqueos',
   recordatorios: 'Recordatorios',
   resenas: 'Reseñas',

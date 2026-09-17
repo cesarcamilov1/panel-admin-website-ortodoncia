@@ -1,0 +1,65 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.nameCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.muted {
+  display: block;
+  font-size: var(--font-size-12-5);
+  color: var(--color-muted);
+}
+
+.coverage {
+  display: block;
+  font-size: var(--font-size-12-5);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-ink-secondary);
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-12-5);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: background 110ms ease;
+}
+
+.action:hover,
+.action:focus-visible {
+  background: var(--color-accent-soft);
+}
+
+.state {
+  margin: 0;
+  padding: var(--space-15) var(--space-10);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-13);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-7);
+  padding: var(--space-10);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-xl);
+}

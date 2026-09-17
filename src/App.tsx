@@ -9,6 +9,7 @@ import { ResetPasswordPage } from './features/auth/ui/ResetPasswordPage'
 import { DashboardPage } from './features/dashboard/ui/DashboardPage'
 import { PanelShell } from './features/panel/ui/PanelShell'
 import { PatientRecordPage } from './features/patient-record/ui/PatientRecordPage'
+import { LocationsPage } from './features/locations/ui/LocationsPage'
 import { PatientsPage } from './features/patients/ui/PatientsPage'
 import { RecordsPage } from './features/records/ui/RecordsPage'
 import { SchedulesPage } from './features/schedules/ui/SchedulesPage'
@@ -37,6 +38,7 @@ function App() {
           <Route path="pagos" element={<RecordsPage section="pagos" />} />
           <Route path="facturacion" element={<RecordsPage section="facturacion" />} />
           <Route path="servicios" element={<ServicesPage />} />
+          <Route path="sedes" element={<LocationsPage />} />
           <Route path="horarios" element={<SchedulesPage />} />
           <Route path="recordatorios" element={<RecordsPage section="recordatorios" />} />
           <Route path="resenas" element={<RecordsPage section="resenas" />} />
