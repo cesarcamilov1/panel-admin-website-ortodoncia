@@ -1,5 +1,6 @@
+import userEvent from '@testing-library/user-event'
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { DataTable, type Column, Stacked } from './DataTable'
 
 interface Row {
@@ -80,5 +81,44 @@ describe('DataTable column sizing', () => {
   it('exposes the clipped text in full on hover', () => {
     render(<DataTable columns={columns} rows={rows} rowKey={(row) => row.id} />)
     expect(screen.getByText(LONG_NOTE)).toHaveAttribute('title', LONG_NOTE)
+  })
+})
+
+describe('DataTable narrow viewports', () => {
+  it('offers a named keyboard-focusable local scroll region', async () => {
+    const user = userEvent.setup()
+    render(<DataTable columns={columns} rows={rows} rowKey={(row) => row.id} />)
+    const region = screen.getByRole('region', { name: 'Tabla de datos' })
+    expect(region).toHaveAttribute('tabindex', '0')
+    await user.tab()
+    expect(region).toHaveFocus()
+    expect(screen.getByRole('table')).toBeInTheDocument()
+    expect(screen.getAllByRole('columnheader')).toHaveLength(3)
+    expect(screen.getAllByRole('cell')).toHaveLength(3)
+  })
+
+  it('reserves readable growing columns alongside all fixed widths', () => {
+    render(<DataTable columns={columns} rows={rows} rowKey={(row) => row.id} />)
+    expect(screen.getByRole('table').style.minWidth).toContain('180px + 104px + 104px')
+  })
+
+  it('keeps row keyboard activation and footer available with local scrolling', async () => {
+    const user = userEvent.setup()
+    const onRowClick = vi.fn()
+    render(
+      <DataTable
+        columns={columns}
+        rows={rows}
+        rowKey={(row) => row.id}
+        onRowClick={onRowClick}
+        footer="1 servicio"
+      />,
+    )
+    await user.tab()
+    await user.tab()
+    await user.keyboard('{Enter}')
+    expect(onRowClick).toHaveBeenCalledWith(rows[0])
+    expect(screen.getByText('1 servicio')).toBeInTheDocument()
+    expect(screen.getByRole('region')).not.toContainElement(screen.getByText('1 servicio'))
   })
 })

@@ -43,40 +43,50 @@ function cellStyle<Row>(column: Column<Row>) {
 }
 
 export function DataTable<Row>({ columns, rows, rowKey, onRowClick, footer }: DataTableProps<Row>) {
+  // Keep fixed columns intact while giving flexible content a readable minimum.
+  // The same inner width applies to every row, so scrolling never desynchronizes headers.
+  const columnWidths = columns.map((column) => column.width ?? '180px').join(' + ') || '0px'
+  const gapCount = Math.max(0, columns.length - 1)
+  const minimumWidth = `calc(${columnWidths} + ${gapCount} * var(--space-8) + 2 * var(--space-10))`
+
   return (
     <div className={styles.table}>
-      <div className={styles.head} role="row">
-        {columns.map((column) => (
-          <span key={column.key} className={styles.cell} style={cellStyle(column)}>
-            {column.label}
-          </span>
-        ))}
-      </div>
-      {rows.map((row) => {
-        const clickable = Boolean(onRowClick)
-        return (
-          <div
-            key={rowKey(row)}
-            role="row"
-            tabIndex={clickable ? 0 : undefined}
-            className={`${styles.row} ${clickable ? styles.clickable : ''}`}
-            onClick={clickable ? () => onRowClick?.(row) : undefined}
-            onKeyDown={
-              clickable
-                ? (event) => {
-                    if (event.key === 'Enter') onRowClick?.(row)
-                  }
-                : undefined
-            }
-          >
+      <div className={styles.scroll} role="region" aria-label="Tabla de datos" tabIndex={0}>
+        <div role="table" style={{ minWidth: minimumWidth }}>
+          <div className={styles.head} role="row">
             {columns.map((column) => (
-              <span key={column.key} className={styles.cell} style={cellStyle(column)}>
-                {column.render(row)}
+              <span key={column.key} role="columnheader" className={styles.cell} style={cellStyle(column)}>
+                {column.label}
               </span>
             ))}
           </div>
-        )
-      })}
+          {rows.map((row) => {
+            const clickable = Boolean(onRowClick)
+            return (
+              <div
+                key={rowKey(row)}
+                role="row"
+                tabIndex={clickable ? 0 : undefined}
+                className={`${styles.row} ${clickable ? styles.clickable : ''}`}
+                onClick={clickable ? () => onRowClick?.(row) : undefined}
+                onKeyDown={
+                  clickable
+                    ? (event) => {
+                        if (event.key === 'Enter') onRowClick?.(row)
+                      }
+                    : undefined
+                }
+              >
+                {columns.map((column) => (
+                  <span role="cell" key={column.key} className={styles.cell} style={cellStyle(column)}>
+                    {column.render(row)}
+                  </span>
+                ))}
+              </div>
+            )
+          })}
+        </div>
+      </div>
       {footer ? <p className={styles.footer}>{footer}</p> : null}
     </div>
   )
