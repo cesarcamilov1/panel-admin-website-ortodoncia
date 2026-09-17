@@ -15,6 +15,7 @@
 
 .header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-7);
   padding: 15px var(--space-11);
@@ -22,16 +23,30 @@
 }
 
 .title {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-size: var(--font-size-14);
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-snug);
 }
 
 .meta {
+  overflow-wrap: anywhere;
   font-size: var(--font-size-12);
   color: var(--color-muted-2);
 }
 
 .spacer {
   flex-grow: 1;
+}
+
+@media (max-width: 420px) {
+  .padded,
+  .header {
+    padding: 12px;
+  }
+
+  .spacer {
+    display: none;
+  }
 }

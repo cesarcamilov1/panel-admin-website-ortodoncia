@@ -1,6 +1,9 @@
 .toast {
   position: fixed;
-  right: var(--space-13);
+  right: min(var(--space-13), 4vw);
+  max-width: calc(100vw - 8vw);
+  overflow-wrap: anywhere;
+  text-align: left;
   bottom: var(--space-12);
   z-index: 40;
   display: flex;
@@ -17,5 +20,6 @@
 }
 
 .icon {
+  flex-shrink: 0;
   color: #7fd4c4;
 }

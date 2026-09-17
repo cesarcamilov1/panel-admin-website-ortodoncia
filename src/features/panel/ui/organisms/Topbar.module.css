@@ -127,8 +127,53 @@
   border: 1.5px solid var(--color-surface);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
+  .topbar {
+    height: auto;
+    min-height: var(--panel-topbar-height);
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .titleBlock {
+    flex: 1;
+    min-width: 160px;
+  }
+
+  .title {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
   .search {
+    order: 1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .spacer {
     display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    position: static;
+  }
+
+  .titleBlock {
+    flex-basis: calc(100% - 60px);
+    min-width: 0;
+  }
+
+  .selectWrap {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .select {
+    width: 100%;
+    max-width: 100%;
   }
 }
