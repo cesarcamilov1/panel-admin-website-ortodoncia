@@ -68,19 +68,24 @@ instruction.
 ## Tasks
 - [x] T1 — Domain: `workSchedule.ts` and `scheduleBlock.ts` (DTO mapping, ISO weekday,
       `HH:MM` and range validation, block types, window helpers, error messages, ordering).
-- [ ] T2 — Application: `schedulesApi.ts` (six operations, required provider guard) plus
+- [x] T2 — Application: `schedulesApi.ts` (six operations, required provider guard) plus
       `useSchedulesApi`, `useWorkSchedules` and `useScheduleBlocks` hooks.
 - [ ] T3 — UI: rewrite `SchedulesPage` over real data, with the week grid, the range
       dialog, the block dialog, the location filter, and loading/error/empty states.
 
 ## Progress
 - T1 done: `clinicTime.ts`, `workSchedule.ts`, `scheduleBlock.ts` and their tests.
+- T2 done: `schedulesApi.ts`, `useSchedulesApi`, `useWorkSchedules`, `useScheduleBlocks`.
 
 ## Verification evidence
 - T1 RED: `pnpm test:run src/features/schedules/domain` -> 2 failed files, "no tests"
   (both modules missing).
 - T1 GREEN: `pnpm test:run src/features/schedules/domain` -> 2 files, 38 tests passed.
+- T2 RED: `pnpm test:run src/features/schedules/application` -> 3 failed files, "no tests".
+- T2 GREEN: `pnpm test:run src/features/schedules` -> 6 files, 64 tests passed.
 - `pnpm exec tsc -b` -> no errors. `pnpm exec oxlint` -> clean.
+- Note: `useSchedulesApi.test.tsx` was written after its four-line wiring hook, not before;
+  every other unit in T1 and T2 was driven from an observed RED.
 
 ## Next step
-- T2.
+- T3.
