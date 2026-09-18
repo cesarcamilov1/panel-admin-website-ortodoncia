@@ -201,7 +201,7 @@ describe.each([undefined, existing])('ServiceFormModal shared inputs (%s)', (ser
     const input = screen.getByLabelText('Duración (minutos)')
     expect(screen.getByRole('combobox', { name: 'Duración (minutos)' })).toBe(input)
     expect(input).toHaveAttribute('inputmode', 'numeric')
-    expect(screen.getByText('De 5 a 480, en pasos de 5.')).toBeInTheDocument()
+    expect(screen.queryByText('De 5 a 480, en pasos de 5.')).not.toBeInTheDocument()
     const listId = input.getAttribute('list')
     expect(listId).toBeTruthy()
     const list = document.getElementById(listId!)
@@ -209,6 +209,16 @@ describe.each([undefined, existing])('ServiceFormModal shared inputs (%s)', (ser
     expect(Array.from(list!.querySelectorAll('option'), (option) => option.value)).toEqual(
       Array.from({ length: 18 }, (_, index) => String((index + 1) * 10)),
     )
+  })
+
+  it('selects the existing duration text on focus so typing replaces it instead of appending', async () => {
+    const { user } = setup({ service })
+    const input = screen.getByLabelText('Duración (minutos)') as HTMLInputElement
+
+    await user.click(input)
+
+    expect(input.selectionStart).toBe(0)
+    expect(input.selectionEnd).toBe(input.value.length)
   })
 
   it('removes the price format hint and shows an integer placeholder', () => {

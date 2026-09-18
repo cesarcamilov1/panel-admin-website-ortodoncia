@@ -9,9 +9,6 @@ import {
   type CatalogService,
   type ServiceDraft,
   type ServiceDraftErrors,
-  DURATION_MAX_MINUTES,
-  DURATION_MIN_MINUTES,
-  DURATION_STEP_MINUTES,
   fromCatalogService,
   serviceErrorMessage,
   validateServiceDraft,
@@ -160,7 +157,7 @@ export function ServiceFormModal({ service, onClose, onSubmit }: ServiceFormModa
               list={durationListId}
               value={durationInput}
               error={errors.durationMinutes}
-              hint={`De ${DURATION_MIN_MINUTES} a ${DURATION_MAX_MINUTES}, en pasos de ${DURATION_STEP_MINUTES}.`}
+              onFocus={(event) => event.currentTarget.select()}
               onChange={(event) => {
                 const value = event.target.value
                 setDurationInput(value)
