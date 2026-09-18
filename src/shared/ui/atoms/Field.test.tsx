@@ -35,3 +35,33 @@ describe('SelectField error state', () => {
     expect(screen.getByLabelText('Rol')).toHaveAttribute('aria-invalid', 'true')
   })
 })
+
+describe('SelectField options', () => {
+  it('keeps using the label as the value for a plain string option', () => {
+    render(<SelectField label="Rol" options={['Titular', 'Asistente']} />)
+
+    expect(screen.getByRole('option', { name: 'Titular' })).toHaveValue('Titular')
+  })
+
+  it('separates value from label, so two options may share a name', () => {
+    render(
+      <SelectField
+        label="Sede"
+        options={[
+          { value: '', label: 'Todas las sedes' },
+          { value: 'loc-1', label: 'Sede Roma' },
+          { value: 'loc-2', label: 'Sede Roma' },
+        ]}
+        value="loc-2"
+        onChange={() => {}}
+      />,
+    )
+
+    expect(
+      screen
+        .getAllByRole<HTMLOptionElement>('option', { name: 'Sede Roma' })
+        .map((option) => option.value),
+    ).toEqual(['loc-1', 'loc-2'])
+    expect(screen.getByLabelText('Sede')).toHaveValue('loc-2')
+  })
+})
