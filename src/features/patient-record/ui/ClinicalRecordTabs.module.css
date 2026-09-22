@@ -1,0 +1,23 @@
+.stack { display: flex; flex-direction: column; gap: var(--space-8); }
+.stack h3, .card h4, .detail h5, .form h5, .nested h5 { margin: 0; }
+.card, .detail, .form, .nested { padding: var(--space-8); border: 1px solid var(--color-border-soft); border-radius: var(--radius-xl); background: var(--color-surface); }
+.card { display: flex; flex-direction: column; gap: var(--space-6); }
+.heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-6); flex-wrap: wrap; }
+.heading p, .listItem p, .detail p, .empty { margin: var(--space-3) 0 0; color: var(--color-muted); }
+.list { display: flex; flex-direction: column; gap: var(--space-4); }
+.listItem { padding: var(--space-5); border: 1px solid var(--color-border-soft); border-radius: var(--radius-md); }
+.listItem strong { margin-right: var(--space-4); }
+.rowButton { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.rowButton span { color: var(--color-muted); font-size: var(--font-size-12); }
+.form { display: flex; flex-direction: column; gap: var(--space-6); background: var(--color-surface-subtle); }
+.columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); }
+.check { display: flex; align-items: center; gap: var(--space-4); font-size: var(--font-size-13); }
+.actions { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
+.detail, .nested { display: flex; flex-direction: column; gap: var(--space-6); }
+.nested { margin-top: var(--space-6); background: var(--color-surface-subtle); }
+.confirm { display: flex; align-items: flex-end; gap: var(--space-5); flex-wrap: wrap; padding: var(--space-5); border: 1px solid var(--color-warning-border); border-radius: var(--radius-md); }
+.confirm p { margin: 0; }
+.note { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); margin: 0; }
+.note dt { color: var(--color-muted); font-size: var(--font-size-12); }
+.note dd { margin: var(--space-3) 0 0; overflow-wrap: anywhere; }
+@media (max-width: 720px) { .columns, .note { grid-template-columns: 1fr; } .rowButton { align-items: flex-start; flex-direction: column; } }

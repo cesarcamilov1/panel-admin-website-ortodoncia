@@ -3,7 +3,19 @@ import userEvent from '@testing-library/user-event'
 import { Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createFakeAuthApi, renderAuthenticated } from '../../../test/auth'
+import { HttpContext } from '../../../shared/api/httpContext'
+import type { HttpTransport } from '../../../shared/api/http'
 import { PanelShell } from './PanelShell'
+
+const http = {
+  get: vi.fn((path: string) => {
+    if (path.startsWith('/api/v1/patients')) return Promise.resolve({ items: [] })
+    if (path.startsWith('/api/v1/services')) return Promise.resolve({ items: [] })
+    if (path.startsWith('/api/v1/schedules/locations')) return Promise.resolve({ items: [] })
+    return Promise.resolve({ items: [] })
+  }),
+  post: vi.fn(), put: vi.fn(), patch: vi.fn(), del: vi.fn(), upload: vi.fn(), download: vi.fn(),
+} as unknown as HttpTransport
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -23,12 +35,12 @@ function renderPanel(initialPath = '/') {
   })
 
   return renderAuthenticated(
-    <Routes>
+    <HttpContext value={http}><Routes>
       <Route element={<PanelShell />}>
         <Route index element={<p>Inicio</p>} />
         <Route path="pacientes" element={<p>Listado de pacientes</p>} />
       </Route>
-    </Routes>,
+    </Routes></HttpContext>,
     { route: initialPath, api },
   )
 }
@@ -64,14 +76,17 @@ describe('<PanelShell />', () => {
     expect(screen.getByRole('dialog', { name: 'Nueva cita' })).toBeInTheDocument()
   })
 
-  it('announces the appointment once it is booked', async () => {
+  it('does not fake a booking when required backend fields are missing', async () => {
     const user = userEvent.setup()
     renderPanel()
 
     await user.click(await screen.findByRole('button', { name: /Nueva cita/ }))
-    await user.click(screen.getByRole('button', { name: 'Agendar cita' }))
+    const submit = screen.getByRole('button', { name: 'Agendar cita' })
+    await waitFor(() => expect(submit).toBeEnabled())
+    await user.click(submit)
 
-    expect(screen.getByRole('status')).toHaveTextContent('Cita agendada para el jue 18 a las 10:30.')
+    expect(screen.getByText(/elegí un paciente, un servicio y una fecha/i)).toBeInTheDocument()
+    expect(screen.queryByText('La cita se creó correctamente.')).not.toBeInTheDocument()
   })
 
   it('logs out and lands on /login', async () => {
@@ -88,12 +103,12 @@ describe('<PanelShell />', () => {
     const user = userEvent.setup()
 
     renderAuthenticated(
-      <Routes>
+      <HttpContext value={http}><Routes>
         <Route element={<PanelShell />}>
           <Route index element={<p>Inicio</p>} />
         </Route>
         <Route path="/login" element={<p>login page</p>} />
-      </Routes>,
+      </Routes></HttpContext>,
       { route: '/', api },
     )
 
