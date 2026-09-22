@@ -1,0 +1,84 @@
+.panel, .detail, .nested, .form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.panel, .detail, .nested, .form, .confirmation {
+  padding: var(--space-8);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+}
+
+.heading, .detailHeading, .nestedHeading, .infoRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+}
+
+.heading h3, .detailHeading h4, .nestedHeading h5, .form h4, .form h5 {
+  margin: 0;
+}
+
+.heading p, .detailHeading p, .muted, .empty, .row small, .infoRow small {
+  margin: var(--space-2) 0 0;
+  color: var(--color-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.row, .infoRow {
+  width: 100%;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.row span, .infoRow span {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.inlineActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.confirm {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  color: var(--color-muted);
+}
+
+.confirmation {
+  border-color: var(--color-warning-border);
+}
+
+.confirmation p {
+  margin: 0 0 var(--space-5);
+}
+
+@media (max-width: 700px) {
+  .heading, .detailHeading, .nestedHeading, .infoRow {
+    flex-direction: column;
+  }
+}

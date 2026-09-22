@@ -1,0 +1,12 @@
+.page { display: grid; gap: 20px; padding: 4px 0; }
+.header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.header h2, .form h3, .detail h3, .catalog h3 { margin: 0 0 6px; }
+.header p, .form p, .detail p { color: var(--text-muted, #64748b); margin: 0; }
+.list { display: grid; gap: 8px; }
+.document { appearance: none; border: 1px solid var(--border, #d7dde5); background: var(--surface, #fff); border-radius: 8px; cursor: pointer; display: grid; gap: 4px; padding: 12px; text-align: left; }
+.document:hover { border-color: var(--primary, #2563eb); }
+.document span { color: var(--text-muted, #64748b); font-size: 13px; overflow-wrap: anywhere; }
+.form, .detail, .catalog { border: 1px solid var(--border, #d7dde5); border-radius: 10px; display: grid; gap: 12px; padding: 16px; }
+.choice { align-items: flex-start; display: flex; gap: 8px; line-height: 1.4; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 640px) { .header { align-items: stretch; flex-direction: column; } }

@@ -3,28 +3,20 @@ import { useNavigate } from 'react-router-dom'
 import { Avatar } from '../../../shared/ui/atoms/Avatar'
 import { Button } from '../../../shared/ui/atoms/Button'
 import { TextField } from '../../../shared/ui/atoms/Field'
-import { Toggle } from '../../../shared/ui/atoms/Toggle'
 import { ShieldCheckIcon } from '../../../shared/ui/atoms/icons'
 import { Card } from '../../../shared/ui/molecules/Card'
 import { FormAlert } from '../../../shared/ui/molecules/FormAlert'
 import { useAuth } from '../../auth/application/authContext'
 import { ROLE_LABELS, authErrorMessage, fullName } from '../../auth/domain/auth'
-import { NOTIFICATION_PREFS } from '../domain/data'
 import styles from './AccountPage.module.css'
 
 export function AccountPage() {
   const navigate = useNavigate()
   const { state, forgotPassword, logoutAll } = useAuth()
-  const [prefs, setPrefs] = useState(NOTIFICATION_PREFS)
   const [passwordEmailSent, setPasswordEmailSent] = useState(false)
   const [passwordRequestPending, setPasswordRequestPending] = useState(false)
   const [passwordRequestError, setPasswordRequestError] = useState<string | null>(null)
   const [logoutAllError, setLogoutAllError] = useState<string | null>(null)
-
-  const toggle = (key: string) =>
-    setPrefs((current) =>
-      current.map((pref) => (pref.key === key ? { ...pref, enabled: !pref.enabled } : pref)),
-    )
 
   if (state.status !== 'authenticated') return null
   const { user } = state
@@ -114,13 +106,8 @@ export function AccountPage() {
         </Card>
 
         <Card>
-          <h2 className={styles.title}>Avisos que quiero recibir</h2>
-          {prefs.map((pref) => (
-            <div key={pref.key} className={styles.pref}>
-              <Toggle checked={pref.enabled} label={pref.label} onChange={() => toggle(pref.key)} />
-              <span className={styles.prefLabel}>{pref.label}</span>
-            </div>
-          ))}
+          <h2 className={styles.title}>Preferencias de avisos</h2>
+          <p className={styles.hint}>No hay un endpoint para guardar preferencias personales. No modificamos avisos locales como si se hubieran guardado.</p>
         </Card>
       </div>
     </div>

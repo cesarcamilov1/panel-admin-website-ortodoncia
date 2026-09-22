@@ -57,16 +57,18 @@ se listan y se pueden quitar uno por uno.
 
 ## Datos
 
-Todos los datos son de muestra y viven en los `domain/data.ts` de cada feature. El dominio
-sigue al backend de `projects/consultorio`: numeración FDI 11–85 para el odontograma, CFDI
-4.0 (RFC, régimen, uso, código postal fiscal) para facturación, y los estados reales de
-citas, pagos y consentimientos.
+Las pantallas integradas consumen las APIs reales del backend de `projects/consultorio` mediante
+`src/shared/api/http.ts`; el alcance, endpoints y contratos pendientes están documentados en
+[docs/backend-integrations.md](docs/backend-integrations.md). Algunos fixtures históricos pueden
+seguir en el repositorio, pero no son un fallback de ejecución. El dominio sigue al backend:
+numeración FDI 11–85 para el odontograma, CFDI 4.0 (RFC, régimen, uso, código postal fiscal)
+para facturación, y los estados reales de citas, pagos y consentimientos.
 
 ## Autenticación
 
 El panel está protegido por sesión real contra la API de `projects/consultorio`
-(`/api/v1/auth/...`). No hay datos de muestra aquí: todo pasa por `src/shared/api/http.ts` y
-`src/features/auth/`.
+(`/api/v1/auth/...`). Las pantallas activas reciben datos del backend mediante `src/shared/api/http.ts` y
+`src/features/auth/`; los módulos de fixtures históricos que sigan en el repositorio no participan de la ejecución.
 
 ### Rutas
 
@@ -119,20 +121,70 @@ ruta que intentaba abrir.
 - El destino tras iniciar sesión se sanea con `sanitizeReturnPath` para evitar open redirects
   (rechaza URLs absolutas, `//host`, backslashes y las propias rutas públicas de auth).
 
-### Variable de entorno
+### API configuration
 
-Define `VITE_API_BASE_URL` en un archivo `.env.local` (ignorado por git). Vacía o ausente usa
-el proxy de desarrollo de Vite (`/api` → `http://localhost:8080`, configurado en
-`vite.config.ts` con `changeOrigin: false` para que el header `Origin` siga siendo
-`http://localhost:5173`). Si la API se sirve en otro origen, hay que poner su URL aquí **y**
-agregar ese origen a `HTTP_CORS_ALLOWED_ORIGINS` y `CSRF_ALLOWED_ORIGINS` en el backend.
+API route paths are always relative and include `/api/v1` (for example,
+`/api/v1/auth/me`). `VITE_API_BASE_URL` is an optional **origin only** value, never a route
+prefix or credential container.
 
-### Correr contra el backend real
+| Environment | API base URL | Development proxy |
+| --- | --- | --- |
+| Production | Leave `VITE_API_BASE_URL` empty for same-origin deployment, or set an HTTPS origin supplied by operations. It must not contain credentials, a path, query, or fragment. | Disabled. |
+| Development | Leave `VITE_API_BASE_URL` empty to use the local proxy, or set an origin-only API URL when CORS is configured. | `DEV_API_PROXY_TARGET` is server-only (not exposed through `import.meta.env`) and defaults to `http://localhost:8080`. |
+
+Put local development overrides in `.env.development.local`, which is ignored. For production,
+set `VITE_API_BASE_URL` through the deployment's public build environment (or use the same-origin
+shell); do not add credentials or a guessed production hostname. No `.env.example` file is tracked.
+When development calls a separate API origin directly, allow the panel origin in the backend CORS
+and CSRF origin configuration.
+
+### Production deployment topology
+
+The currently supported safe production topology is **same-origin**: serve the built panel and
+reverse-proxy `/api` to the backend under the same HTTPS scheme, host, and port. Leave
+`VITE_API_BASE_URL` empty in that topology; browser requests stay relative and do not require
+CORS.
+
+A split-origin production deployment is not currently CORS-ready just by setting
+`VITE_API_BASE_URL`. Before enabling it, the backend must explicitly configure the panel origin
+in `ExactCORS` `AllowedOrigins`, keep credentialed CORS enabled, and add `If-Match` to its
+`AllowedHeaders` list (alongside `Accept`, `Content-Type`, `X-CSRF-Token`, `Idempotency-Key`,
+and `X-Filename`). It must also allow that origin in the backend CSRF-origin configuration. The
+current backend CORS middleware omits `If-Match`, so versioned browser mutations will fail CORS
+preflight until that backend prerequisite is deployed. This frontend does not bypass or suppress
+the header.
+
+### Private file names and consent evidence
+
+Private-file uploads carry the original filename in the `X-Filename` HTTP header because the
+backend reads that header verbatim. Browsers only accept byte-safe header values, so this panel
+accepts only trimmed printable ASCII filenames without paths, controls, or `..`; rename files
+such as `firma😀.pdf` before uploading. The panel never percent-encodes or base64-encodes a
+filename because the backend has no decoding contract.
+
+When a consent is bound to a private document, the signing flow retrieves that exact CLEAN
+consent file for the selected patient, verifies its SHA-256 bytes against the immutable consent
+hash, and requires an explicit acknowledgement before either signature method can continue.
+Template text remains supplemental for a bound document and is never a substitute preview.
+
+### Fiscal artifact links
+
+The fiscal artifact route returns a short-lived signed URL JSON response, rather than an
+authenticated blob. The panel requests it only after an explicit action, accepts only
+credential-free HTTPS URLs with the server-provided short expiry, and exposes a manual
+`noopener noreferrer` / no-referrer link. It does not forward API cookies or Authorization
+headers to object storage, persist signed URLs, log them, or force a cross-origin download.
+Cookies that a browser might send to the destination remain governed by browser and destination
+policy; the link does not promise cookie-free navigation. The same-origin reverse-proxy setup
+described above remains the supported configuration for the
+API request that obtains the signed URL.
+
+### Run against the local backend
 
 ```bash
-# en projects/consultorio
-HTTP_ADDR=:8080 AUTH_RESET_LINK_BASE_URL=http://localhost:5173 <comando de arranque del backend>
+# In projects/consultorio
+HTTP_ADDR=:8080 AUTH_RESET_LINK_BASE_URL=http://localhost:5173 <backend start command>
 
-# en este repo
+# In this repository
 pnpm dev
 ```

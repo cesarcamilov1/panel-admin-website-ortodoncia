@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState, type ReactNode } from 'react'
 import { Badge } from '../../../shared/ui/atoms/Badge'
 import { Button } from '../../../shared/ui/atoms/Button'
 import { PlusIcon } from '../../../shared/ui/atoms/icons'
@@ -11,6 +11,13 @@ import {
   type RecordSectionId,
 } from '../domain/sections'
 import styles from './RecordsPage.module.css'
+import { RouteBoundary } from '../../../shared/ui/organisms/RouteBoundary'
+import { PaymentsPage } from './PaymentsPage'
+
+const IntegratedRecordsPage = lazy(() => import('./IntegratedRecordsPage').then(({ IntegratedRecordsPage }) => ({ default: IntegratedRecordsPage })))
+const BillingPage = lazy(() => import('../../billing/ui/BillingPage').then(({ BillingPage }) => ({ default: BillingPage })))
+const RemindersPage = lazy(() => import('../../reminders/ui/RemindersPage').then(({ RemindersPage }) => ({ default: RemindersPage })))
+const ReviewsPage = lazy(() => import('../../reviews/ui/ReviewsPage').then(({ ReviewsPage }) => ({ default: ReviewsPage })))
 
 interface RecordsPageProps {
   section: RecordSectionId
@@ -44,7 +51,38 @@ function buildColumns(section: RecordSectionId): Column<RecordRow>[] {
   }))
 }
 
+function FeatureRoute({ children }: { children: ReactNode }) {
+  return (
+    <RouteBoundary>
+      <Suspense fallback={<p role="status" aria-live="polite">Cargando sección…</p>}>
+        {children}
+      </Suspense>
+    </RouteBoundary>
+  )
+}
+
 export function RecordsPage({ section }: RecordsPageProps) {
+  if (section === 'pagos') return <PaymentsPage />
+  if (section === 'facturacion') return <FeatureRoute><BillingPage /></FeatureRoute>
+  if (section === 'ortodoncia' || section === 'recetas' || section === 'consentimientos') return <FeatureRoute><IntegratedRecordsPage section={section} /></FeatureRoute>
+  if (section === 'recordatorios') return <FeatureRoute><RemindersPage /></FeatureRoute>
+  if (section === 'resenas') return <FeatureRoute><ReviewsPage /></FeatureRoute>
+  if (section === 'reportes') return <ReportsUnavailable />
+  return <LegacyRecordsPage section={section} />
+}
+
+function ReportsUnavailable() {
+  return (
+    <div className={styles.page}>
+      <div role="status">
+        <h1>Reportes no disponibles</h1>
+        <p>El backend no expone un endpoint de reportes ni una exportación verificable. No mostramos gráficos, totales ni descargas inventadas.</p>
+      </div>
+    </div>
+  )
+}
+
+function LegacyRecordsPage({ section }: RecordsPageProps) {
   const config = RECORD_SECTIONS[section]
   const [filter, setFilter] = useState(config.filters[0])
 

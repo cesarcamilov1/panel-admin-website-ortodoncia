@@ -106,9 +106,9 @@ export function PanelShell() {
         {modalOpen ? (
           <NewAppointmentModal
             onClose={() => setModalOpen(false)}
-            onConfirm={(summary) => {
+            onCreated={() => {
               setModalOpen(false)
-              notify(summary)
+              notify('La cita se creó correctamente.')
             }}
           />
         ) : null}

@@ -1,90 +1,82 @@
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '../../../shared/ui/atoms/Badge'
-import { Button } from '../../../shared/ui/atoms/Button'
-import { AlertIcon, ChevronRightIcon, ReceiptIcon, ShieldCheckIcon, StarIcon } from '../../../shared/ui/atoms/icons'
 import { Card, CardHeader } from '../../../shared/ui/molecules/Card'
-import { KpiRow } from '../../../shared/ui/molecules/KpiCard'
-import { STATUS_LABELS, STATUS_TONES, TODAY } from '../../agenda/domain/data'
-import { ALERTS, CASH_BREAKDOWN, DAY_KPIS } from '../domain/data'
+import { useHttpTransport } from '../../../shared/api/httpContext'
+import { useAppointmentsApi } from '../../agenda/application/useAppointmentsApi'
+import type { Appointment } from '../../agenda/domain/appointment'
+import { STATUS_LABELS } from '../../agenda/domain/appointment'
+import { useAuth } from '../../auth/application/authContext'
+import { createCommunicationsApi } from '../../communications/application/communicationsApi'
 import styles from './DashboardPage.module.css'
 
-const ALERT_ICONS = {
-  consents: ShieldCheckIcon,
-  cfdi: ReceiptIcon,
-  reminder: AlertIcon,
-  review: StarIcon,
-} as const
+const canRead = (role: string) => role === 'OWNER_DENTIST' || role === 'ASSISTANT'
+const statusTone = (status: string): 'ok' | 'warn' | 'danger' | 'info' | 'neutral' => status === 'COMPLETED' ? 'ok' : status === 'CANCELLED' || status === 'NO_SHOW' ? 'danger' : status === 'CONFIRMED' ? 'info' : 'warn'
+
+function todayWindow() {
+  const from = new Date()
+  from.setHours(0, 0, 0, 0)
+  const to = new Date(from)
+  to.setDate(to.getDate() + 1)
+  return { from: from.toISOString(), to: to.toISOString() }
+}
+
+function snapshotPatientName(appointment: Appointment): string {
+  const snapshot = appointment as Appointment & { patientName?: string; patient_name?: string }
+  return snapshot.patientName || snapshot.patient_name || `Paciente ${appointment.patientId}`
+}
 
 export function DashboardPage() {
-  return (
-    <div className={styles.page}>
-      <KpiRow items={DAY_KPIS} />
+  const { state } = useAuth()
+  const http = useHttpTransport()
+  const appointmentsApi = useAppointmentsApi()
+  const communications = useMemo(() => createCommunicationsApi(http), [http])
+  const [appointments, setAppointments] = useState<Appointment[]>([])
+  const [metrics, setMetrics] = useState<Record<string, number> | null>(null)
+  const [loadingAgenda, setLoadingAgenda] = useState(true)
+  const [agendaError, setAgendaError] = useState<string | null>(null)
+  const [metricsError, setMetricsError] = useState<string | null>(null)
+  const ready = state.status === 'authenticated' && canRead(state.user.role)
 
-      <div className={styles.columns}>
-        <Card padded={false}>
-          <CardHeader
-            title="Agenda de hoy"
-            meta="Martes 16 de septiembre"
-            actions={
-              <Link to="/agenda" className={styles.link}>
-                Ver semana completa
-              </Link>
-            }
-          />
-          {TODAY.appointments.map((appointment) => (
-            <Link key={appointment.id} to="/agenda" className={styles.row}>
-              <span className={styles.time}>{appointment.time}</span>
-              <span className={`${styles.keyline} ${styles[appointment.status]}`} />
-              <span className={styles.rowText}>
-                <strong>{appointment.patient}</strong>
-                <small>{appointment.service}</small>
-              </span>
-              <Badge tone={STATUS_TONES[appointment.status]}>
-                {STATUS_LABELS[appointment.status]}
-              </Badge>
-              <ChevronRightIcon className={styles.chevron} />
-            </Link>
-          ))}
-        </Card>
+  useEffect(() => {
+    if (!ready) return
+    let current = true
+    const { from, to } = todayWindow()
+    void appointmentsApi.list({ from, to })
+      .then((items) => { if (current) setAppointments(items) })
+      .catch(() => { if (current) setAgendaError('No pudimos cargar la agenda de hoy.') })
+      .finally(() => { if (current) setLoadingAgenda(false) })
+    void communications.metrics()
+      .then((counters) => { if (current) setMetrics(counters) })
+      .catch(() => { if (current) setMetricsError('Las métricas de comunicaciones no están disponibles actualmente.') })
+    return () => { current = false }
+  }, [appointmentsApi, communications, ready])
 
-        <div className={styles.side}>
-          <Card padded={false}>
-            <CardHeader title="Requiere tu atención" />
-            {ALERTS.map((alert) => {
-              const Icon = ALERT_ICONS[alert.id as keyof typeof ALERT_ICONS]
-              return (
-                <Link key={alert.id} to={alert.to} className={styles.alert}>
-                  <span className={`${styles.alertIcon} ${styles[alert.tone]}`}>
-                    <Icon size={15} />
-                  </span>
-                  <span className={styles.rowText}>
-                    <strong>{alert.title}</strong>
-                    <small>{alert.detail}</small>
-                  </span>
-                </Link>
-              )
-            })}
-          </Card>
-
-          <Card>
-            <h2 className={styles.cashTitle}>Corte del día</h2>
-            {CASH_BREAKDOWN.map((entry) => (
-              <p key={entry.label} className={styles.cashRow}>
-                <span>{entry.label}</span>
-                <strong>{entry.value}</strong>
-              </p>
-            ))}
-            <hr className={styles.divider} />
-            <p className={styles.cashTotal}>
-              <span>Total cobrado</span>
-              <strong>$18,450.00</strong>
-            </p>
-            <Button variant="soft" className={styles.cashAction}>
-              Cerrar caja del día
-            </Button>
-          </Card>
-        </div>
-      </div>
+  return <div className={styles.page}><div className={styles.columns}>
+    <Card padded={false}>
+      <CardHeader title="Agenda de hoy" meta="Ventana local de hoy" actions={<Link to="/agenda" className={styles.link}>Ver agenda</Link>} />
+      {!ready ? <p role="status">Tu rol no puede consultar este resumen.</p> : null}
+      {ready && loadingAgenda ? <p role="status">Cargando agenda de hoy…</p> : null}
+      {ready && agendaError ? <p role="alert">{agendaError}</p> : null}
+      {ready && !loadingAgenda && !agendaError && appointments.length === 0 ? <p role="status">No hay citas en la ventana de hoy.</p> : null}
+      {ready && !agendaError ? appointments.map((appointment) => <Link key={appointment.id} to="/agenda" className={styles.row}>
+        <span className={styles.time}>{new Date(appointment.startsAt).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
+        <span className={`${styles.keyline} ${styles[appointment.status]}`} />
+        <span className={styles.rowText}><strong>{snapshotPatientName(appointment)}</strong><small>{appointment.reason || 'Sin motivo registrado'}</small></span>
+        <Badge tone={statusTone(appointment.status)}>{STATUS_LABELS[appointment.status]}</Badge>
+      </Link>) : null}
+    </Card>
+    <div className={styles.side}>
+      <Card>
+        <h2 className={styles.cashTitle}>Métricas de comunicaciones</h2>
+        {!ready ? <p role="status">No disponibles para tu rol.</p> : null}
+        {ready && metricsError ? <p role="alert">{metricsError}</p> : null}
+        {ready && !metrics && !metricsError ? <p role="status">Cargando métricas…</p> : null}
+        {metrics && Object.keys(metrics).length === 0 ? <p>El servidor no reportó métricas.</p> : null}
+        {metrics ? Object.entries(metrics).map(([name, value]) => <p key={name} className={styles.cashRow}><span>{name}</span><strong>{value}</strong></p>) : null}
+        <Link to="/recordatorios" className={styles.link}>Abrir recordatorios</Link>
+      </Card>
+      <Card><h2 className={styles.cashTitle}>Datos no disponibles</h2><p>No hay endpoint seguro para caja, estadísticas de pacientes ni agregados clínicos. Consultá los módulos conectados.</p></Card>
     </div>
-  )
+  </div></div>
 }
